@@ -662,6 +662,12 @@
         setFabAction(showAddModal, 'fa-user-plus', 'blue');
       }, 500);
     });
+
+    // When user returns to page (back button), reload data from data.json
+    window.addEventListener('pageshow', function() {
+      console.log('📄 عودة المستخدم لصفحة الموظفين - إعادة تحميل البيانات...');
+      loadData();
+    });
   </script>
 </body>
 </html>

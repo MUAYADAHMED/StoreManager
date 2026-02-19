@@ -180,6 +180,9 @@
     </button>
   </div>
 
+  <!-- Floating Action Button -->
+  <div id="floatingButton"></div>
+
   <!-- Bottom Navigation -->
   <div id="navbar"></div>
 
@@ -193,6 +196,21 @@
   <script>
     let currentSupplierId = null;
 
+    // Save data when leaving the page
+    window.addEventListener('beforeunload', function() {
+      if (typeof appData !== 'undefined') {
+        saveDataToLocalStorage();
+        console.log('💾 تم حفظ البيانات قبل المغادرة');
+      }
+    });
+
+    window.addEventListener('pagehide', function() {
+      if (typeof appData !== 'undefined') {
+        saveDataToLocalStorage();
+        console.log('💾 تم حفظ البيانات قبل المغادرة (pagehide)');
+      }
+    });
+
     // Get supplier ID from URL
     function getSuppliersIdFromURL() {
       const params = new URLSearchParams(window.location.search);
@@ -201,7 +219,15 @@
 
     // Go back
     function goBack() {
-      window.history.back();
+      // إعادة تحميل البيانات من data.json قبل العودة
+      if (typeof loadData === 'function') {
+        loadData().then(() => {
+          console.log('✅ تم إعادة تحميل البيانات من data.json');
+          setTimeout(() => window.history.back(), 500);
+        });
+      } else {
+        window.history.back();
+      }
     }
 
     // Initialize page
@@ -294,6 +320,13 @@
       renderTransactions(supplier.transactions);
     }
 
+    // Update page when data is loaded/reloaded
+    function updateCurrentPageData() {
+      if (currentSupplierId) {
+        loadSupplierData();
+      }
+    }
+
     // Render transactions table
     function renderTransactions(transactions) {
       const table = document.getElementById('transactions-table');
@@ -308,18 +341,19 @@
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .forEach(t => {
           const date = new Date(t.date).toLocaleDateString('ar-EG');
-          const typeText = t.type === 'purchase' ? 'شراء' : 'دفع';
+          const typeText = t.type === 'purchase' ? 'شراء' : t.type === 'payment' ? 'دفع' : 'معاملة';
+          const typeColor = t.type === 'purchase' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700';
           const amountClass = t.type === 'purchase' ? 'text-red-600' : 'text-green-600';
 
           const row = document.createElement('tr');
           row.className = 'border-b hover:bg-gray-50';
           row.innerHTML = `
-            <td class="p-3">${date}</td>
-            <td class="p-3"><span class="px-2 py-1 rounded-full text-xs font-semibold ${amountClass} bg-opacity-10" style="background-color: currentColor; opacity: 0.1; color: inherit;">${typeText}</span></td>
-            <td class="p-3">${t.description}</td>
-            <td class="p-3 font-bold ${amountClass}">${t.amount.toLocaleString('ar-EG')} ج.م</td>
+            <td class="p-3 text-sm">${date}</td>
+            <td class="p-3"><span class="px-3 py-1 rounded-full text-xs font-bold ${typeColor}">${typeText}</span></td>
+            <td class="p-3 text-sm">${t.description}</td>
+            <td class="p-3 font-bold text-sm ${amountClass}">${t.amount.toLocaleString('ar-EG')} ج.م</td>
             <td class="p-3 text-center">
-              <button onclick="deleteTransaction(${t.id})" class="text-red-600 hover:text-red-700" title="حذف">
+              <button onclick="deleteTransaction(${t.id})" class="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition" title="حذف">
                 <i class="ri-delete-bin-line"></i>
               </button>
             </td>
@@ -338,7 +372,7 @@
         <form onsubmit="saveTransaction(event)">
           <div class="mb-4">
             <label class="block text-gray-700 mb-2">نوع المعاملة</label>
-            <select required id="transactionType" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <select required name="transactionType" id="transactionType" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
               <option value="">-- اختر النوع --</option>
               <option value="purchase">شراء</option>
               <option value="payment">دفع</option>
@@ -347,12 +381,15 @@
 
           <div class="mb-4">
             <label class="block text-gray-700 mb-2">المبلغ</label>
-            <input type="number" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" name="amount">
+            <input type="number" required name="amount" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
           </div>
 
           <div class="mb-4">
             <label class="block text-gray-700 mb-2">الوصف</label>
-            <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" name="description" rows="2"></textarea>
+            <div class="relative">
+              <input type="text" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" name="description" id="descriptionInput" oninput="showDescriptionSuggestions()" placeholder="ابدأ بالكتابة لرؤية الاقتراحات">
+              <ul id="suggestionsList" class="hidden absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto z-10 shadow-lg"></ul>
+            </div>
           </div>
 
           <div class="flex gap-3">
@@ -369,6 +406,48 @@
       showModal(modalContent);
     }
 
+    // Show description suggestions
+    function showDescriptionSuggestions() {
+      const input = document.getElementById('descriptionInput');
+      const query = input.value.toLowerCase().trim();
+      const suggestionsList = document.getElementById('suggestionsList');
+      
+      if (!query || query.length < 1) {
+        suggestionsList.classList.add('hidden');
+        return;
+      }
+
+      // Get existing descriptions from transactions
+      const existingDescriptions = new Set();
+      appData.suppliers.forEach(supp => {
+        supp.transactions.forEach(t => {
+          if (t.description) {
+            existingDescriptions.add(t.description);
+          }
+        });
+      });
+
+      // Filter matching descriptions
+      const suggestions = Array.from(existingDescriptions)
+        .filter(desc => desc.toLowerCase().includes(query))
+        .slice(0, 5);
+
+      if (suggestions.length > 0) {
+        suggestionsList.innerHTML = suggestions
+          .map(suggestion => `<li class="px-3 py-2 hover:bg-purple-50 cursor-pointer text-sm" onclick="selectSuggestion('${suggestion.replace(/'/g, "\\'")}')">${suggestion}</li>`)
+          .join('');
+        suggestionsList.classList.remove('hidden');
+      } else {
+        suggestionsList.classList.add('hidden');
+      }
+    }
+
+    // Select suggestion
+    function selectSuggestion(suggestion) {
+      document.getElementById('descriptionInput').value = suggestion;
+      document.getElementById('suggestionsList').classList.add('hidden');
+    }
+
     // Save transaction
     function saveTransaction(event) {
       event.preventDefault();
@@ -383,29 +462,55 @@
       }
 
       const supplier = appData.suppliers.find(s => s.id === currentSupplierId);
-      supplier.transactions.push({
+      
+      if (!supplier) {
+        showNotification('خطأ: المورد غير موجود', 'error');
+        return;
+      }
+
+      const newTransaction = {
         id: Date.now(),
         type: type,
         amount: amount,
         date: new Date().toISOString(),
         description: description || 'معاملة جديدة',
-      });
+      };
 
-      saveDataToLocalStorage();
-      loadSupplierData();
-      closeModal();
-      showNotification('تمت إضافة المعاملة بنجاح', 'success');
+      supplier.transactions.push(newTransaction);
+      console.log('✅ تمت إضافة معاملة:', newTransaction);
+      console.log('✅ عدد المعاملات الحالي:', supplier.transactions.length);
+
+      // حفظ مباشرة في data.json وانتظار الحفظ
+      if (typeof saveDataToLocalStorage === 'function') {
+        saveDataToLocalStorage().then(() => {
+          console.log('✅ اكتملت عملية الحفظ في data.json');
+          loadSupplierData();
+          closeModal();
+          showNotification('تمت إضافة المعاملة بنجاح', 'success');
+        }).catch((error) => {
+          console.error('❌ فشل الحفظ:', error);
+          showNotification('خطأ في حفظ المعاملة', 'error');
+        });
+      }
     }
 
     // Delete transaction
     function deleteTransaction(transactionId) {
-      if (confirm('هل أنت متأكد من حذف هذه المعاملة؟')) {
-        const supplier = appData.suppliers.find(s => s.id === currentSupplierId);
+      const supplier = appData.suppliers.find(s => s.id === currentSupplierId);
+      const transaction = supplier.transactions.find(t => t.id === transactionId);
+      
+      if (!transaction) return;
+      
+      const typeText = transaction.type === 'purchase' ? 'شراء' : 'دفعة';
+      const confirmMsg = `هل أنت متأكد من حذف هذه المعاملة؟\n\n📋 التفاصيل:\n- النوع: ${typeText}\n- المبلغ: ${transaction.amount} ج.م\n- الوصف: ${transaction.description}`;
+      
+      if (confirm(confirmMsg)) {
         supplier.transactions = supplier.transactions.filter(t => t.id !== transactionId);
         
-        saveDataToLocalStorage();
-        loadSupplierData();
-        showNotification('تم حذف المعاملة بنجاح', 'success');
+        saveDataToLocalStorage().then(() => {
+          loadSupplierData();
+          showNotification('تم حذف المعاملة بنجاح', 'success');
+        });
       }
     }
 
@@ -429,7 +534,14 @@
     // Load components when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
       loadComponent('navbar', 'components/navbar.html');
+      loadComponent('floatingButton', 'components/floating-button.html');
+      
       setTimeout(init, 100);
+      
+      // Set FAB action for this page - Add transaction
+      setTimeout(() => {
+        setFabAction(showAddTransactionModal, 'fa-plus', 'purple');
+      }, 500);
     });
   </script>
 </body>

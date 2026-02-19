@@ -7,53 +7,68 @@ let appData = {
 };
 
 // === Data Management Functions ===
-// Save data to localStorage AND data/data.json file
-function saveDataToLocalStorage() {
+// Save data to data/data.json file ONLY (now returns a promise)
+async function saveDataToLocalStorage() {
   try {
-    // Save to localStorage (Main storage)
-    localStorage.setItem('storeManagerData', JSON.stringify(appData));
-    localStorage.setItem('lastSaved', new Date().toISOString());
-    console.log('✅ تم حفظ البيانات');
+    const jsonString = JSON.stringify(appData);
+    console.log('💾 جاري حفظ البيانات في data/data.json...');
+    console.log('📊 حجم البيانات:', (jsonString.length / 1024).toFixed(2) + ' KB');
     
-    // Also try to save to JSON file via server
-    saveToJsonFile();
+    // Wait for the save to complete
+    const result = await saveToJsonFile();
+    
+    if (result) {
+      console.log('✅ اكتملت عملية الحفظ بنجاح');
+    } else {
+      console.warn('⚠️ قد لم تكتمل عملية الحفظ بنجاح');
+    }
+    
+    return result;
   } catch (error) {
     console.error('❌ خطأ في حفظ البيانات:', error);
+    showNotification('⚠️ خطأ في حفظ البيانات: ' + error.message, 'error');
+    return false;
   }
 }
 
 // Save data to data/data.json file via PUT request
 async function saveToJsonFile() {
   try {
+    const dataToSend = JSON.stringify(appData, null, 2);
+    console.log('📤 إرسال البيانات إلى الخادم...');
+    console.log('📦 حجم البيانات:', (dataToSend.length / 1024).toFixed(2) + ' KB');
+    
     const response = await fetch('data/data.json', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(appData, null, 2)
+      body: dataToSend
     });
 
+    console.log('📨 حالة الاستجابة:', response.status);
+    const responseText = await response.text();
+    console.log('📋 رسالة الخادم:', responseText);
+
     if (response.ok) {
-      console.log('✅ تم حفظ البيانات في data/data.json');
+      console.log('✅ تم حفظ البيانات في data/data.json بنجاح');
+      console.log('✅ الملف محدّث على الخادم الآن');
+      return true;
+    } else {
+      console.warn('⚠️ فشل حفظ البيانات في الخادم:', response.status);
+      console.warn('⚠️ الرسالة:', responseText);
+      return false;
     }
   } catch (error) {
-    // Server not available - data is still saved in localStorage
-    console.log('ℹ️ تم الحفظ في الذاكرة المحلية');
+    console.error('❌ خطأ عند الاتصال بالخادم:', error);
+    console.error('❌ تفاصيل الخطأ:', error.message);
+    return false;
   }
 }
 
-// Load data from localStorage
-function loadDataFromLocalStorage() {
-  try {
-    const savedData = localStorage.getItem('storeManagerData');
-    if (savedData) {
-      appData = JSON.parse(savedData);
-      console.log('✅ تم تحميل البيانات المحفوظة');
-      return true;
-    }
-  } catch (error) {
-    console.error('❌ خطأ في تحميل البيانات:', error);
-  }
+// Load data from data.json only (localStorage is not used)
+function loadDataFromJsonFile() {
+  // This function is no longer used
   return false;
 }
 
@@ -117,29 +132,26 @@ function loadComponent(componentId, filePath) {
     .catch(error => console.error('Error loading component:', error));
 }
 
-// Load data from JSON file and localStorage
+// Load data from data/data.json ONLY
 async function loadData() {
+  console.log('🔄 جاري تحميل البيانات من data/data.json...');
   try {
-    // أولاً: حاول تحميل من data.json
     const response = await fetch("data/data.json");
     if (response.ok) {
       const jsonData = await response.json();
       appData = jsonData;
-      console.log('✅ تم تحميل البيانات من data/data.json');
-      // احفظ في localStorage أيضاً
-      localStorage.setItem('storeManagerData', JSON.stringify(appData));
+      console.log('✅ تم تحميل البيانات من data/data.json بنجاح');
       updateCurrentPageData();
       return;
+    } else {
+      console.log('ℹ️ لم يتمكن من تحميل البيانات');
     }
   } catch (error) {
-    console.log('ℹ️ لم يتمكن من تحميل data.json - سأحاول localStorage');
+    console.log('ℹ️ لم يتمكن من تحميل data.json:', error.message);
   }
   
-  // ثانياً: إذا فشل، حاول تحميل من localStorage
-  if (loadDataFromLocalStorage()) {
-    console.log('✅ تم تحميل البيانات من localStorage');
-    updateCurrentPageData();
-  }
+  console.log('ℹ️ تم إنشاء بيانات جديدة');
+  updateCurrentPageData();
 }
 
 // Update current page data (to be overridden in each page)
@@ -220,6 +232,12 @@ document.addEventListener("DOMContentLoaded", function () {
   
   // Save data every 30 seconds
   setInterval(saveDataToLocalStorage, 30000);
+});
+
+// When user returns to page (back button), reload data from data.json
+window.addEventListener('pageshow', function() {
+  console.log('📄 عودة المستخدم للصفحة - إعادة تحميل البيانات...');
+  loadData();
 });
 
 // When a component is loaded, update navbar active state if navbar was loaded

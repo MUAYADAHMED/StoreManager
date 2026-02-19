@@ -491,9 +491,7 @@
         const balanceIcon = data.balance >= 0 ? "fa-arrow-up" : "fa-arrow-down";
 
         card.innerHTML = `
-<div class="flex items-center justify-between mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded" onclick="viewCustomerDetails(${
-          data.id
-        })">
+<div class="flex items-center justify-between mb-4">
   <div class="flex items-center flex-1">
     <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
       ${data.name.charAt(0)}
@@ -522,9 +520,9 @@
           }, 'customer')" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-xs transition flex items-center gap-1">
             <i class="fab fa-whatsapp"></i>مشاركة
           </button>
-          <button onclick="showStatement(${
+          <button onclick="viewCustomerDetails(${
             data.id
-          }, 'customer')" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded text-xs transition flex items-center gap-1">
+          })" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded text-xs transition flex items-center gap-1">
             <i class="fas fa-list-alt"></i>كشف
           </button>
           <button onclick="editCustomer(${
@@ -688,7 +686,15 @@
 
       // Delete customer
       function deleteCustomer(customerId) {
-        if (!confirm('هل تريد حقاً حذف هذا العميل؟')) return;
+        const customer = appData.customers.find(c => c.id === customerId);
+        const transactionsCount = customer ? customer.transactions.length : 0;
+        
+        let confirmMsg = `هل أنت متأكد من حذف العميل: "${customer?.name}"?\n\n`;
+        if (transactionsCount > 0) {
+          confirmMsg += `⚠️ تحذير: سيتم حذف جميع فواتير هذا العميل (${transactionsCount} فاتورة)!`;
+        }
+        
+        if (!confirm(confirmMsg)) return;
 
         appData.customers = appData.customers.filter(c => c.id !== customerId);
         saveDataToLocalStorage();
@@ -827,14 +833,37 @@
             return;
           }
 
-          const filteredItems = (appData.items || []).filter((item) =>
+          // Collect items from previous invoices and appData.items
+          const allItems = new Map();
+          
+          // Add items from appData.items
+          (appData.items || []).forEach(item => {
+            if (item.name && item.price) {
+              allItems.set(item.name.toLowerCase(), { name: item.name, price: item.price });
+            }
+          });
+          
+          // Add items from customer invoices
+          (appData.customers || []).forEach(customer => {
+            (customer.transactions || []).forEach(transaction => {
+              if (transaction.type === 'invoice' && Array.isArray(transaction.items)) {
+                transaction.items.forEach(item => {
+                  if (item.name && item.price) {
+                    allItems.set(item.name.toLowerCase(), { name: item.name, price: item.price });
+                  }
+                });
+              }
+            });
+          });
+
+          const filteredItems = Array.from(allItems.values()).filter(item =>
             item.name && item.name.toLowerCase().includes(query)
-          );
+          ).slice(0, 8);
 
           if (filteredItems.length > 0) {
             suggestionsList.innerHTML = filteredItems
               .map((item, idx) => `
-                <li class="px-3 py-2" data-name="${escapeHtml(
+                <li class="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm" data-name="${escapeHtml(
                   item.name
                 )}" data-price="${item.price}">${escapeHtml(item.name)} - ${item.price} ر.س</li>
               `)
@@ -1324,6 +1353,12 @@
         setTimeout(() => {
           setFabAction(showAddModal, 'fa-user-plus', 'green');
         }, 500);
+      });
+
+      // When user returns to page (back button), reload data from data.json
+      window.addEventListener('pageshow', function() {
+        console.log('📄 عودة المستخدم لصفحة العملاء - إعادة تحميل البيانات...');
+        loadData();
       });
     </script>
   </body>

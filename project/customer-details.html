@@ -178,6 +178,9 @@
   <!-- Bottom Navigation -->
   <div id="navbar"></div>
 
+  <!-- Floating Button -->
+  <div id="floatingButton"></div>
+
   <!-- Transaction Modal -->
   <div id="transaction-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-end sm:items-center justify-center backdrop-blur-sm">
     <div class="bg-white w-full sm:w-[450px] h-auto rounded-t-2xl sm:rounded-2xl shadow-2xl transform transition-all">
@@ -252,6 +255,21 @@
     let invoiceItems = [];
     let currentFilter = 'all';
     let dataLoaded = false;
+
+    // Save data when leaving the page
+    window.addEventListener('beforeunload', function() {
+      if (dataLoaded) {
+        saveDataToLocalStorage();
+        console.log('💾 تم حفظ البيانات قبل المغادرة');
+      }
+    });
+
+    window.addEventListener('pagehide', function() {
+      if (dataLoaded) {
+        saveDataToLocalStorage();
+        console.log('💾 تم حفظ البيانات قبل المغادرة (pagehide)');
+      }
+    });
 
     // Initialize page
     document.addEventListener("DOMContentLoaded", function() {
@@ -356,6 +374,13 @@
       
       // Render transactions
       renderTransactions(customer.transactions);
+    }
+
+    // Update page when data is loaded/reloaded
+    function updateCurrentPageData() {
+      if (currentCustomerId) {
+        loadCustomerData();
+      }
     }
 
     // Calculate customer balance
@@ -508,7 +533,18 @@
 
     // Open transaction modal
     function openTransactionModal() {
+      // Ensure customer ID is available
+      if (!currentCustomerId) {
+        showNotification('لم يتم تحديد العميل', 'error');
+        return;
+      }
+      
       const customer = appData.customers.find(c => c.id == currentCustomerId);
+      
+      if (!customer) {
+        showNotification('العميل غير موجود', 'error');
+        return;
+      }
       
       // Reset modal state
       currentTransactionType = 'invoice';
@@ -669,6 +705,12 @@
 
     // Save transaction
     function saveTransaction() {
+      // Verify customer ID
+      if (!currentCustomerId) {
+        showNotification('خطأ: لم يتم تحديد العميل', 'error');
+        return;
+      }
+
       let amount = 0;
       let description = '';
       
@@ -693,6 +735,12 @@
       
       // Add transaction to the customer
       const customer = appData.customers.find(c => c.id == currentCustomerId);
+      
+      if (!customer) {
+        showNotification('خطأ: العميل غير موجود', 'error');
+        return;
+      }
+      
       customer.transactions.push({
         id: Date.now(),
         type: currentTransactionType === 'invoice' ? 'invoice' : 'payment',
@@ -907,9 +955,13 @@
         jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
       };
       
-      html2pdf().set(opt).fromString(htmlContent).save();
-      document.querySelector('.fixed').remove();
-      showNotification('تم تحميل الكشف بصيغة PDF', 'success');
+      try {
+        html2pdf(htmlContent, opt);
+        showNotification('تم تحميل الكشف بصيغة PDF', 'success');
+      } catch(error) {
+        console.error('Error generating PDF:', error);
+        showNotification('حدث خطأ في تحميل PDF', 'error');
+      }
     }
 
     // Export statement
