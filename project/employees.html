@@ -151,7 +151,6 @@
         const card = createEmployeeCard({
           id: employee.id,
           name: employee.name,
-          role: employee.role,
           balance: balance,
           phone: employee.phone,
         });
@@ -175,7 +174,6 @@
             </div>
             <div class="mr-3">
               <h3 class="font-bold text-lg">${data.name}</h3>
-              <p class="text-sm text-gray-600">${data.role || "موظف"}</p>
             </div>
           </div>
           <div class="text-right">
@@ -187,16 +185,16 @@
           </div>
         </div>
         <div class="flex flex-wrap gap-2 justify-end">
-          <button onclick="addAdvance(${data.id})" class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm transition" title="إضافة سلفة">
-            <i class="fas fa-hand-holding-usd ml-1"></i>سلفة
+          <button onclick="addAdvance(${data.id})" class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm transition" title="إضافة مصروف">
+            <i class="fas fa-hand-holding-usd ml-1"></i>مصروف
           </button>
           <button onclick="addDeduction(${data.id})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition" title="إضافة خصم">
             <i class="fas fa-minus-circle ml-1"></i>خصم
           </button>
-          <button onclick="addSalary(${data.id})" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition" title="دفع راتب">
-            <i class="fas fa-money-check ml-1"></i>راتب
+          <button onclick="showSalaryDelivery(${data.id})" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition" title="تسليم راتب">
+            <i class="fas fa-money-check ml-1"></i>تسليم راتب
           </button>
-          <button onclick="showStatement(${data.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition" title="كشف الحساب">
+          <button onclick="goToEmployeeDetails(${data.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition" title="كشف الحساب">
             <i class="fas fa-list-alt ml-1"></i>كشف
           </button>
           <button onclick="editEmployee(${data.id})" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition" title="تعديل">
@@ -248,10 +246,6 @@
             <input type="text" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="name">
           </div>
           <div class="mb-4">
-            <label class="block text-gray-700 mb-2">المنصب</label>
-            <input type="text" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="role">
-          </div>
-          <div class="mb-4">
             <label class="block text-gray-700 mb-2">رقم الهاتف</label>
             <input type="tel" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="phone">
           </div>
@@ -280,7 +274,6 @@
       const newEmployee = {
         id: Date.now(),
         name: formData.get("name"),
-        role: formData.get("role"),
         phone: formData.get("phone"),
         salary: parseFloat(formData.get("salary")),
         transactions: [],
@@ -305,10 +298,6 @@
           <div class="mb-4">
             <label class="block text-gray-700 mb-2">اسم الموظف</label>
             <input type="text" required value="${employee.name}" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="name">
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-700 mb-2">المنصب</label>
-            <input type="text" required value="${employee.role || ''}" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="role">
           </div>
           <div class="mb-4">
             <label class="block text-gray-700 mb-2">رقم الهاتف</label>
@@ -340,7 +329,6 @@
       
       if (employee) {
         employee.name = formData.get("name");
-        employee.role = formData.get("role");
         employee.phone = formData.get("phone");
         employee.salary = parseFloat(formData.get("salary"));
         
@@ -354,12 +342,20 @@
 
     // Delete employee
     function deleteEmployee(employeeId) {
-      if (confirm("هل أنت متأكد من حذف هذا الموظف؟")) {
+      const employee = appData.employees.find(e => e.id === employeeId);
+      const transactionsCount = employee ? employee.transactions.length : 0;
+      
+      let confirmMsg = `هل أنت متأكد من حذف الموظف: "${employee?.name}"?\n\n`;
+      if (transactionsCount > 0) {
+        confirmMsg += `⚠️ تحذير: سيتم حذف جميع معاملات هذا الموظف (${transactionsCount} معاملة)!`;
+      }
+      
+      if (confirm(confirmMsg)) {
         appData.employees = appData.employees.filter(e => e.id !== employeeId);
         saveDataToLocalStorage();
         renderEmployees();
         updateStats();
-        showNotification("تم حذف الموظف بنجاح", "success");
+        showNotification("تم حذف الموظف وجميع معاملاته بنجاح", "success");
       }
     }
 
@@ -384,10 +380,10 @@
     function addAdvance(employeeId) {
       const employee = appData.employees.find((e) => e.id === employeeId);
       let modalContent = `
-        <h3 class="text-xl font-bold mb-4">إضافة سلفة - ${employee.name}</h3>
+        <h3 class="text-xl font-bold mb-4">إضافة مصروف - ${employee.name}</h3>
         <form onsubmit="saveAdvance(event, ${employeeId})">
           <div class="mb-4">
-            <label class="block text-gray-700 mb-2">مبلغ السلفة</label>
+            <label class="block text-gray-700 mb-2">مبلغ المصروف</label>
             <input type="number" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="amount">
           </div>
           <div class="mb-4">
@@ -396,7 +392,7 @@
           </div>
           <div class="flex gap-3">
             <button type="submit" class="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg transition">
-              حفظ السلفة
+              حفظ المصروف
             </button>
             <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
               إلغاء
@@ -426,13 +422,13 @@
         type: "advance",
         amount: amount,
         date: new Date().toISOString(),
-        description: notes || "سلفة جديدة",
+        description: notes || "مصروف جديد",
       });
 
       saveDataToLocalStorage();
       renderEmployees();
       closeModal();
-      showNotification("تم حفظ السلفة بنجاح", "success");
+      showNotification("تم حفظ المصروف بنجاح", "success");
     }
 
     // Add deduction
@@ -490,27 +486,70 @@
       showNotification("تم حفظ الخصم بنجاح", "success");
     }
 
-    // Add salary
-    function addSalary(employeeId) {
+    // Show salary delivery form
+    function showSalaryDelivery(employeeId) {
       const employee = appData.employees.find((e) => e.id === employeeId);
+      
+      // Calculate deductions (مصاريف + خصوم)
+      let totalDeductions = 0;
+      employee.transactions.forEach((t) => {
+        if (t.type === "advance" || t.type === "deduction") {
+          totalDeductions += t.amount;
+        }
+      });
+      
+      // Calculate paid salaries
+      let paidSalaries = 0;
+      employee.transactions.forEach((t) => {
+        if (t.type === "salary") {
+          paidSalaries += t.amount;
+        }
+      });
+      
+      const basicSalary = employee.salary || 0;
+      const remaining = basicSalary - totalDeductions - paidSalaries;
+      
       let modalContent = `
-        <h3 class="text-xl font-bold mb-4">دفع راتب - ${employee.name}</h3>
-        <form onsubmit="saveSalary(event, ${employeeId})">
-          <div class="mb-4">
-            <label class="block text-gray-700 mb-2">الراتب الأساسي</label>
-            <input type="number" value="${employee.salary}" readonly class="w-full px-3 py-2 border rounded-lg bg-gray-100">
+        <h3 class="text-xl font-bold mb-6 text-center">تسليم راتب - ${employee.name}</h3>
+        
+        <div class="bg-gray-50 p-4 rounded-lg mb-6 space-y-3">
+          <div class="flex justify-between items-center pb-2 border-b">
+            <span class="text-gray-700">الراتب الأساسي:</span>
+            <span class="font-bold text-green-600">${basicSalary.toLocaleString("ar-EG")} ج.م</span>
           </div>
-          <div class="mb-4">
-            <label class="block text-gray-700 mb-2">المبلغ المدفوع</label>
-            <input type="number" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="amount">
+          
+          <div class="flex justify-between items-center pb-2 border-b">
+            <span class="text-gray-700">الخصوم والمصاريف:</span>
+            <span class="font-bold text-red-600">(${totalDeductions.toLocaleString("ar-EG")}) ج.م</span>
           </div>
-          <div class="mb-4">
-            <label class="block text-gray-700 mb-2">ملاحظات</label>
-            <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="notes" rows="3"></textarea>
+          
+          <div class="flex justify-between items-center pb-2 border-b">
+            <span class="text-gray-700">الراتب المسدد سابقاً:</span>
+            <span class="font-bold text-blue-600">(${paidSalaries.toLocaleString("ar-EG")}) ج.م</span>
           </div>
+          
+          <div class="flex justify-between items-center pt-2 border-t-2">
+            <span class="text-lg font-bold">المتبقي للتسليم:</span>
+            <span class="text-xl font-bold ${remaining >= 0 ? 'text-green-600' : 'text-red-600'}">
+              ${remaining >= 0 ? '' : '('}${Math.abs(remaining).toLocaleString("ar-EG")}${remaining >= 0 ? '' : ')'} ج.م
+            </span>
+          </div>
+        </div>
+        
+        <form onsubmit="recordSalaryPayment(event, ${employeeId})">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">المبلغ المسدد</label>
+            <input type="number" required value="${remaining}" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" name="amount">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">ملاحظات (اختياري)</label>
+            <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" name="notes" rows="2"></textarea>
+          </div>
+          
           <div class="flex gap-3">
-            <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">
-              دفع الراتب
+            <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition font-semibold">
+              تسديد الراتب
             </button>
             <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
               إلغاء
@@ -522,8 +561,8 @@
       showModal(modalContent);
     }
 
-    // Save salary
-    function saveSalary(event, employeeId) {
+    // Record salary payment
+    function recordSalaryPayment(event, employeeId) {
       event.preventDefault();
       const formData = new FormData(event.target);
       const amount = parseFloat(formData.get("amount"));
@@ -540,16 +579,21 @@
         type: "salary",
         amount: amount,
         date: new Date().toISOString(),
-        description: notes || "دفع راتب",
+        description: notes || "تسديد راتب",
       });
 
       saveDataToLocalStorage();
       renderEmployees();
       closeModal();
-      showNotification("تم دفع الراتب بنجاح", "success");
+      showNotification("تم تسديد الراتب بنجاح", "success");
     }
 
-    // Show statement
+    // Go to employee details page
+    function goToEmployeeDetails(employeeId) {
+      window.location.href = `employee-details.html?id=${employeeId}`;
+    }
+
+    // Show statement (موجود في showStatement للنموذج)
     function showStatement(employeeId) {
       const employee = appData.employees.find(e => e.id === employeeId);
       const transactions = employee.transactions;
@@ -574,7 +618,7 @@
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .forEach((t) => {
           const date = new Date(t.date).toLocaleDateString("ar-EG");
-          const typeText = t.type === "advance" ? "سلفة" : t.type === "deduction" ? "خصم" : "راتب";
+          const typeText = t.type === "advance" ? "مصروف" : t.type === "deduction" ? "خصم" : "راتب";
           const amountClass = t.type === "salary" ? "text-green-600" : "text-red-600";
 
           if (t.type === "advance" || t.type === "deduction") {

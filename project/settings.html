@@ -14,26 +14,6 @@
           colors: {
             primary: "#3B82F6",
             secondary: "#10B981",
-            emerald: {
-              50: '#f0fdf4',
-              100: '#dcfce7',
-              500: '#10b981',
-              600: '#059669',
-              700: '#047857',
-              800: '#065f46',
-            }
-          },
-          borderRadius: {
-            none: "0px",
-            sm: "4px",
-            DEFAULT: "8px",
-            md: "12px",
-            lg: "16px",
-            xl: "20px",
-            "2xl": "24px",
-            "3xl": "32px",
-            full: "9999px",
-            button: "8px",
           },
         },
       },
@@ -54,6 +34,13 @@
     .content-area {
       padding-bottom: 100px;
     }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -62,65 +49,104 @@
 
   <!-- Main Content -->
   <main class="container mx-auto px-4 py-6 content-area">
-    <div class="max-w-2xl mx-auto">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6">الإعدادات</h2>
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-3xl font-bold text-gray-800 mb-8">الإعدادات</h1>
 
-      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h3 class="text-lg font-semibold mb-4 flex items-center">
-          <i class="fas fa-database ml-2 text-blue-600"></i>
-          إدارة البيانات
+      <!-- System Information Section -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+          <i class="ri-information-line text-blue-600 text-xl"></i>
+          معلومات النظام
         </h3>
-        <div class="space-y-4">
-          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div>
-              <p class="font-medium">استيراد البيانات</p>
-              <p class="text-sm text-gray-600">تحميل بيانات من ملف JSON</p>
-            </div>
-            <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)" />
-            <button onclick="document.getElementById('importFile').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
-              <i class="fas fa-upload ml-2"></i>استيراد
-            </button>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <span class="text-gray-600">الإصدار</span>
+            <span class="font-semibold text-gray-800">1.0.0</span>
           </div>
-
-          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div>
-              <p class="font-medium">تصدير البيانات</p>
-              <p class="text-sm text-gray-600">حفظ البيانات الحالية في ملف JSON</p>
-            </div>
-            <button onclick="exportData()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
-              <i class="fas fa-download ml-2"></i>تصدير
-            </button>
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <span class="text-gray-600">آخر تحديث</span>
+            <span class="font-semibold text-gray-800" id="lastUpdate">--</span>
           </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow-md p-6">
-        <h3 class="text-lg font-semibold mb-4 flex items-center">
-          <i class="fas fa-info-circle ml-2 text-blue-600"></i>
-          معلومات النظام
+      <!-- Sync Section -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+          <i class="ri-refresh-line text-green-600 text-xl"></i>
+          المزامنة
+        </h3>
+        <p class="text-sm text-gray-600 mb-4">مزامنة البيانات مع قاعدة البيانات الرئيسية</p>
+        <button onclick="synchronizeData()" id="syncBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition font-semibold flex items-center justify-center gap-2">
+          <i class="ri-refresh-line"></i>
+          مزامنة البيانات
+        </button>
+        <p class="text-xs text-gray-500 mt-3" id="syncStatus"></p>
+      </div>
+
+      <!-- Data Management Section -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+          <i class="ri-database-line text-purple-600 text-xl"></i>
+          إدارة البيانات
         </h3>
         <div class="space-y-3">
-          <div class="flex justify-between">
-            <span class="text-gray-600">الإصدار</span>
-            <span class="font-medium">1.0.0</span>
+          <button onclick="document.getElementById('importFile').click()" class="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
+            <div class="text-left">
+              <p class="font-medium text-gray-800">استيراد البيانات</p>
+              <p class="text-xs text-gray-600 mt-1">تحميل بيانات من ملف JSON</p>
+            </div>
+            <i class="ri-upload-cloud-line text-purple-600 text-2xl"></i>
+          </button>
+          <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)" />
+
+          <button onclick="exportData()" class="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
+            <div class="text-left">
+              <p class="font-medium text-gray-800">تصدير البيانات</p>
+              <p class="text-xs text-gray-600 mt-1">حفظ البيانات الحالية كنسخة احتياطية</p>
+            </div>
+            <i class="ri-download-cloud-line text-purple-600 text-2xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistics Section -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+          <i class="ri-bar-chart-line text-orange-600 text-xl"></i>
+          إحصائيات التطبيق
+        </h3>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-blue-50 p-4 rounded-lg text-center">
+            <i class="ri-user-line text-blue-600 text-2xl mb-2 block"></i>
+            <p class="text-2xl font-bold text-blue-600" id="customersCount">0</p>
+            <p class="text-xs text-gray-600">عملاء</p>
           </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">آخر تحديث</span>
-            <span class="font-medium" id="lastUpdate">--</span>
+          <div class="bg-green-50 p-4 rounded-lg text-center">
+            <i class="ri-team-line text-green-600 text-2xl mb-2 block"></i>
+            <p class="text-2xl font-bold text-green-600" id="employeesCount">0</p>
+            <p class="text-xs text-gray-600">موظفين</p>
           </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">عدد العملاء</span>
-            <span class="font-medium" id="customersCount">0</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">عدد الموظفين</span>
-            <span class="font-medium" id="employeesCount">0</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">عدد الموردين</span>
-            <span class="font-medium" id="suppliersCount">0</span>
+          <div class="bg-purple-50 p-4 rounded-lg text-center">
+            <i class="ri-truck-line text-purple-600 text-2xl mb-2 block"></i>
+            <p class="text-2xl font-bold text-purple-600" id="suppliersCount">0</p>
+            <p class="text-xs text-gray-600">موردين</p>
           </div>
         </div>
+      </div>
+
+      <!-- About Section -->
+      <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl shadow-sm border border-blue-200 p-6">
+        <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+          <i class="ri-hearts-line text-red-600 text-xl"></i>
+          عن التطبيق
+        </h3>
+        <p class="text-sm text-gray-700">
+          <span class="font-semibold">دفتر حسابات البوفية</span> - تطبيق متقدم لإدارة حسابات العملاء والموظفين والموردين
+        </p>
+        <p class="text-xs text-gray-600 mt-3">
+          هذا التطبيق يساعدك على تنظيم ومراقبة جميع معاملات البوفية بسهولة وكفاءة.
+        </p>
       </div>
     </div>
   </main>
@@ -143,7 +169,51 @@
       document.getElementById("customersCount").textContent = appData.customers.length;
       document.getElementById("employeesCount").textContent = appData.employees.length;
       document.getElementById("suppliersCount").textContent = appData.suppliers.length;
-      document.getElementById("lastUpdate").textContent = new Date().toLocaleString("ar-EG");
+      
+      const lastSaved = localStorage.getItem('lastSaved');
+      if (lastSaved) {
+        const date = new Date(lastSaved);
+        document.getElementById("lastUpdate").textContent = date.toLocaleString("ar-EG");
+      }
+    }
+
+    // Synchronize data
+    async function synchronizeData() {
+      const btn = document.getElementById('syncBtn');
+      const statusEl = document.getElementById('syncStatus');
+      
+      btn.disabled = true;
+      btn.innerHTML = '<i class="ri-loader-4-line animate-spin"></i>جاري المزامنة...';
+      statusEl.textContent = 'جاري المزامنة مع قاعدة البيانات...';
+      
+      try {
+        // Try to sync with server
+        const response = await fetch('data/data.json', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(appData, null, 2)
+        });
+
+        if (response.ok) {
+          showNotification('تمت المزامنة بنجاح', 'success');
+          statusEl.textContent = '✅ تمت المزامنة بنجاح في ' + new Date().toLocaleTimeString('ar-EG');
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="ri-refresh-line"></i>مزامنة البيانات';
+          }, 1500);
+        } else {
+          throw new Error('خطأ في المزامنة');
+        }
+      } catch (error) {
+        showNotification('البيانات محفوظة محليا - الخادم غير متاح', 'info');
+        statusEl.textContent = '⚠️ تم الحفظ محليا (الخادم غير متاح)';
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="ri-refresh-line"></i>مزامنة البيانات';
+        }, 1500);
+      }
     }
 
     // Import data
@@ -197,6 +267,7 @@
     document.addEventListener("DOMContentLoaded", function() {
       loadComponent('header', 'components/header.html');
       loadComponent('navbar', 'components/navbar.html');
+      updateStats();
     });
   </script>
 </body>

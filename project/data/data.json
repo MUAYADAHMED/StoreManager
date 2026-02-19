@@ -109,7 +109,29 @@
       "role": "شيف",
       "balance": 50000,
       "salary": 100000,
-      "transactions": []
+      "transactions": [
+        {
+          "id": 1771510196019,
+          "type": "deduction",
+          "amount": 2000,
+          "date": "2026-02-19T14:09:56.019Z",
+          "description": "غياب"
+        },
+        {
+          "id": 1771510217583,
+          "type": "advance",
+          "amount": 5000,
+          "date": "2026-02-19T14:10:17.583Z",
+          "description": "احتياجات خاصة"
+        },
+        {
+          "id": 1771510221953,
+          "type": "salary",
+          "amount": 93000,
+          "date": "2026-02-19T14:10:21.953Z",
+          "description": "تسديد راتب"
+        }
+      ]
     },
     {
       "id": 1771463286174,

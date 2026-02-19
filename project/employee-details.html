@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تفاصيل الموظف - دفتر حسابات البوفية</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#3B82F6",
+            secondary: "#10B981",
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap");
+    body { 
+      font-family: "Tajawal", sans-serif; 
+    }
+    .content-area { 
+      padding-bottom: 120px; 
+    }
+    .fab {
+      position: fixed;
+      bottom: 100px;
+      left: 20px;
+      z-index: 40;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+    }
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50">
+
+  <!-- HEADER -->
+  <div class="bg-white shadow-sm px-4 py-3 flex items-center gap-3 sticky top-0 z-20">
+    <button onclick="goBack()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
+      <i class="ri-arrow-right-line text-xl text-gray-700"></i>
+    </button>
+
+    <div>
+      <h1 class="text-lg font-bold text-gray-800" id="employee-name">جاري التحميل...</h1>
+    </div>
+  </div>
+
+  <main class="container mx-auto px-4 pt-6 content-area">
+    <!-- Loading indicator -->
+    <div id="loading-indicator" class="text-center py-10">
+      <div class="loading-spinner"></div>
+      <p class="text-gray-500 mt-2">جاري تحميل بيانات الموظف...</p>
+    </div>
+
+    <!-- Content (hidden initially) -->
+    <div id="content-area" class="hidden">
+      <!-- EMPLOYEE CARD -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border mb-6">
+        <div class="flex items-center gap-6">
+
+          <!-- AVATAR -->
+          <div class="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold" id="employee-avatar">
+            ش
+          </div>
+
+          <div class="flex-1">
+            <h2 class="font-bold text-xl text-gray-800" id="employee-fullname">اسم الموظف</h2>
+            <p class="text-gray-600 text-sm" id="employee-phone">
+              <i class="ri-phone-line text-gray-500"></i>
+              الهاتف
+            </p>
+
+            <div class="mt-2 flex gap-6 text-sm">
+              <p><span class="text-gray-500">عدد المعاملات:</span> <span class="font-bold" id="transaction-count">0</span></p>
+              <p><span class="text-gray-500">آخر معاملة:</span> <span class="font-bold" id="last-transaction">--</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SALARY STATISTICS -->
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        <!-- Basic Salary -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+              <i class="ri-money-dollar-circle-line text-green-600 text-lg"></i>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">الراتب الأساسي</p>
+              <p class="text-lg font-bold text-green-600" id="basic-salary">0 ج.م</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deductions -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+              <i class="ri-subtract-line text-red-600 text-lg"></i>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">الخصوم والمصاريف</p>
+              <p class="text-lg font-bold text-red-600" id="total-deductions">0 ج.م</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paid Salaries -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+              <i class="ri-bank-card-line text-blue-600 text-lg"></i>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">الراتب المسدد</p>
+              <p class="text-lg font-bold text-blue-600" id="paid-salaries">0 ج.م</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REMAINING BALANCE (Highlighted) -->
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-sm border-2 border-blue-200 mb-6">
+        <p class="text-gray-600 text-sm mb-2">المبلغ المتبقي للتسليم</p>
+        <p class="text-4xl font-bold text-blue-600" id="remaining-balance">0 ج.م</p>
+      </div>
+
+      <!-- TRANSACTIONS TABLE -->
+      <div class="bg-white rounded-xl shadow-sm border p-4 mb-6">
+        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+          <i class="ri-list-check-2 text-blue-600"></i>
+          سجل المعاملات
+        </h3>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b-2 border-gray-200">
+                <th class="text-right p-3 text-gray-600">التاريخ</th>
+                <th class="text-right p-3 text-gray-600">النوع</th>
+                <th class="text-right p-3 text-gray-600">الوصف</th>
+                <th class="text-right p-3 text-gray-600">المبلغ</th>
+                <th class="text-center p-3 text-gray-600">الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="transactions-table">
+              <!-- Will be filled by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Floating Action Button -->
+  <div class="fab">
+    <button onclick="showAddTransactionModal()" 
+      class="w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg flex items-center justify-center text-xl transition">
+      <i class="ri-add-line"></i>
+    </button>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div id="navbar"></div>
+
+  <!-- Modal Container -->
+  <div id="modalContainer"></div>
+
+  <!-- Load common JS -->
+  <script src="js/common.js"></script>
+
+  <!-- Page specific script -->
+  <script>
+    let currentEmployeeId = null;
+
+    // Get employee ID from URL
+    function getEmployeeIdFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return parseInt(params.get('id')) || null;
+    }
+
+    // Go back
+    function goBack() {
+      window.history.back();
+    }
+
+    // Initialize page
+    function init() {
+      currentEmployeeId = getEmployeeIdFromURL();
+      if (!currentEmployeeId) {
+        document.getElementById('loading-indicator').innerHTML = '<p class="text-red-500">خطأ: لم يتم تحديد الموظف</p>';
+        return;
+      }
+
+      loadEmployeeData();
+    }
+
+    // Load employee data
+    function loadEmployeeData() {
+      const employee = appData.employees.find(e => e.id === currentEmployeeId);
+      
+      if (!employee) {
+        document.getElementById('loading-indicator').innerHTML = '<p class="text-red-500">الموظف غير موجود</p>';
+        return;
+      }
+
+      // Hide loading, show content
+      document.getElementById('loading-indicator').classList.add('hidden');
+      document.getElementById('content-area').classList.remove('hidden');
+
+      // Update header
+      document.getElementById('employee-name').textContent = employee.name;
+      document.getElementById('employee-avatar').textContent = employee.name.charAt(0);
+
+      // Update employee card
+      document.getElementById('employee-fullname').textContent = employee.name;
+      document.getElementById('employee-phone').innerHTML = employee.phone ? 
+        `<i class="ri-phone-line text-gray-500 ml-1"></i>${employee.phone}` : 
+        '<span class="text-gray-400">لا يوجد هاتف</span>';
+
+      // Count transactions
+      document.getElementById('transaction-count').textContent = employee.transactions.length;
+
+      // Last transaction date
+      if (employee.transactions.length > 0) {
+        const lastDate = new Date(employee.transactions[0].date).toLocaleDateString('ar-EG');
+        document.getElementById('last-transaction').textContent = lastDate;
+      }
+
+      // Calculate statistics
+      const basicSalary = employee.salary || 0;
+      let totalDeductions = 0;
+      let paidSalaries = 0;
+
+      employee.transactions.forEach(t => {
+        if (t.type === 'advance' || t.type === 'deduction') {
+          totalDeductions += t.amount;
+        } else if (t.type === 'salary') {
+          paidSalaries += t.amount;
+        }
+      });
+
+      const remaining = basicSalary - totalDeductions - paidSalaries;
+
+      // Update stat cards
+      document.getElementById('basic-salary').textContent = basicSalary.toLocaleString('ar-EG') + ' ج.م';
+      document.getElementById('total-deductions').textContent = totalDeductions.toLocaleString('ar-EG') + ' ج.م';
+      document.getElementById('paid-salaries').textContent = paidSalaries.toLocaleString('ar-EG') + ' ج.م';
+
+      // Update remaining balance with color coding
+      const remainingEl = document.getElementById('remaining-balance');
+      remainingEl.textContent = Math.abs(remaining).toLocaleString('ar-EG') + ' ج.م';
+      
+      if (remaining < 0) {
+        document.querySelector('.bg-gradient-to-br').classList.remove('from-blue-50', 'to-blue-100', 'border-blue-200');
+        document.querySelector('.bg-gradient-to-br').classList.add('from-red-50', 'to-red-100', 'border-red-200');
+        remainingEl.classList.remove('text-blue-600');
+        remainingEl.classList.add('text-red-600');
+      }
+
+      // Render transactions
+      renderTransactions(employee.transactions);
+    }
+
+    // Render transactions table
+    function renderTransactions(transactions) {
+      const table = document.getElementById('transactions-table');
+      table.innerHTML = '';
+
+      if (transactions.length === 0) {
+        table.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">لا توجد معاملات</td></tr>';
+        return;
+      }
+
+      transactions
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .forEach(t => {
+          const date = new Date(t.date).toLocaleDateString('ar-EG');
+          const typeText = t.type === 'advance' ? 'مصروف' : t.type === 'deduction' ? 'خصم' : 'راتب';
+          const typeColor = t.type === 'salary' ? 'text-green-600' : 'text-red-600';
+          const amountClass = t.type === 'salary' ? 'text-green-600' : 'text-red-600';
+
+          const row = document.createElement('tr');
+          row.className = 'border-b hover:bg-gray-50';
+          row.innerHTML = `
+            <td class="p-3">${date}</td>
+            <td class="p-3"><span class="px-2 py-1 rounded-full text-xs font-semibold ${typeColor} bg-opacity-10" style="background-color: currentColor; opacity: 0.1; color: inherit;">${typeText}</span></td>
+            <td class="p-3">${t.description}</td>
+            <td class="p-3 font-bold ${amountClass}">${t.amount.toLocaleString('ar-EG')} ج.م</td>
+            <td class="p-3 text-center">
+              <button onclick="deleteTransaction(${t.id})" class="text-red-600 hover:text-red-700" title="حذف">
+                <i class="ri-delete-bin-line"></i>
+              </button>
+            </td>
+          `;
+          table.appendChild(row);
+        });
+    }
+
+    // Show add transaction modal
+    function showAddTransactionModal() {
+      const employee = appData.employees.find(e => e.id === currentEmployeeId);
+      
+      let modalContent = `
+        <h3 class="text-xl font-bold mb-4">إضافة معاملة - ${employee.name}</h3>
+        
+        <form onsubmit="saveTransaction(event)">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">نوع المعاملة</label>
+            <select required id="transactionType" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="updateTransactionFields()">
+              <option value="">-- اختر النوع --</option>
+              <option value="advance">مصروف</option>
+              <option value="deduction">خصم</option>
+              <option value="salary">راتب</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">المبلغ</label>
+            <input type="number" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="amount">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">الوصف</label>
+            <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="description" rows="2"></textarea>
+          </div>
+
+          <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">
+              إضافة
+            </button>
+            <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      `;
+
+      showModal(modalContent);
+    }
+
+    // Save transaction
+    function saveTransaction(event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const type = formData.get('transactionType');
+      const amount = parseFloat(formData.get('amount'));
+      const description = formData.get('description');
+
+      if (!type || amount <= 0) {
+        showNotification('يرجى ملء جميع الحقول بشكل صحيح', 'error');
+        return;
+      }
+
+      const employee = appData.employees.find(e => e.id === currentEmployeeId);
+      employee.transactions.push({
+        id: Date.now(),
+        type: type,
+        amount: amount,
+        date: new Date().toISOString(),
+        description: description || 'معاملة جديدة',
+      });
+
+      saveDataToLocalStorage();
+      loadEmployeeData();
+      closeModal();
+      showNotification('تمت إضافة المعاملة بنجاح', 'success');
+    }
+
+    // Delete transaction
+    function deleteTransaction(transactionId) {
+      if (confirm('هل أنت متأكد من حذف هذه المعاملة؟')) {
+        const employee = appData.employees.find(e => e.id === currentEmployeeId);
+        employee.transactions = employee.transactions.filter(t => t.id !== transactionId);
+        
+        saveDataToLocalStorage();
+        loadEmployeeData();
+        showNotification('تم حذف المعاملة بنجاح', 'success');
+      }
+    }
+
+    // Show modal
+    function showModal(content) {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+      modal.innerHTML = `
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 slide-in">
+          ${content}
+        </div>
+      `;
+      document.getElementById('modalContainer').appendChild(modal);
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('modalContainer').innerHTML = '';
+    }
+
+    // Update transaction fields based on type
+    function updateTransactionFields() {
+      // Can be expanded for different field requirements
+    }
+
+    // Load components when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      loadComponent('navbar', 'components/navbar.html');
+      setTimeout(init, 100);
+    });
+  </script>
+</body>
+</html>
