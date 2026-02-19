@@ -1,0 +1,398 @@
+<!-- Page Title -->
+<div class="mb-6">
+  <h2 class="text-2xl font-bold text-gray-800 mb-2">إدارة الموردين</h2>
+  <p class="text-sm text-gray-600">
+    إدارة حسابات الموردين والمشتريات والمستحقات المالية
+  </p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="mb-6">
+  <div class="grid grid-cols-2 gap-3">
+    <div class="bg-white rounded-lg p-4 shadow-sm border">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center"
+        >
+          <i class="ri-money-dollar-circle-line text-red-600 text-lg"></i>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">إجمالي المستحقات</p>
+          <p class="text-lg font-bold text-red-600">8,750 ر.س</p>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg p-4 shadow-sm border">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-secondary/20 rounded-lg flex items-center justify-center"
+        >
+          <i class="ri-truck-line text-secondary text-lg"></i>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">الموردين النشطين</p>
+          <p class="text-lg font-bold text-secondary">12</p>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg p-4 shadow-sm border">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center"
+        >
+          <i class="ri-file-list-line text-yellow-600 text-lg"></i>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">الفواتير المعلقة</p>
+          <p class="text-lg font-bold text-yellow-600">7</p>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg p-4 shadow-sm border">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"
+        >
+          <i class="ri-shopping-cart-line text-green-600 text-lg"></i>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">مشتريات الشهر</p>
+          <p class="text-lg font-bold text-green-600">15,420 ر.س</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="mb-6">
+  <div class="bg-white rounded-lg p-4 shadow-sm border">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="flex-1 relative">
+        <input
+          type="text"
+          id="supplier-search-input"
+          placeholder="البحث عن مورد..."
+          class="w-full bg-gray-50 rounded-lg px-4 py-3 pr-10 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+        />
+        <div
+          class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center"
+        >
+          <i class="ri-search-line text-gray-400 text-lg"></i>
+        </div>
+      </div>
+      <button
+        class="bg-primary text-white px-4 py-3 rounded-lg !rounded-button cursor-pointer"
+      >
+        <div class="w-5 h-5 flex items-center justify-center">
+          <i class="ri-filter-line text-lg"></i>
+        </div>
+      </button>
+    </div>
+    <div class="flex gap-2 overflow-x-auto" id="filter-buttons">
+      <button
+        class="filter-btn bg-primary text-white px-4 py-2 rounded-full text-sm whitespace-nowrap !rounded-button cursor-pointer"
+        data-filter="all"
+      >
+        الكل (12)
+      </button>
+      <button
+        class="filter-btn bg-gray-100 text-gray-600 px-4 py-2 rounded-full text-sm whitespace-nowrap !rounded-button cursor-pointer"
+        data-filter="active"
+      >
+        نشط (9)
+      </button>
+      <button
+        class="filter-btn bg-gray-100 text-gray-600 px-4 py-2 rounded-full text-sm whitespace-nowrap !rounded-button cursor-pointer"
+        data-filter="pending"
+      >
+        معلق (2)
+      </button>
+      <button
+        class="filter-btn bg-gray-100 text-gray-600 px-4 py-2 rounded-full text-sm whitespace-nowrap !rounded-button cursor-pointer"
+        data-filter="due"
+      >
+        مدين (1)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Suppliers List -->
+<div class="space-y-4">
+  <h3 class="text-lg font-semibold text-gray-800">قائمة الموردين</h3>
+  <div id="supplierList">
+    <!-- Supplier Card 1 -->
+    <div
+      class="supplier-card bg-white rounded-xl p-4 shadow-sm border cursor-pointer hover:shadow-md transition-shadow"
+      data-supplier-id="supplier1"
+      data-supplier-name="مؤسسة الخضار الطازجة"
+    >
+      <div
+        class="supplier-card bg-white rounded-xl p-4 shadow-sm border cursor-pointer hover:shadow-md transition-shadow"
+        data-supplier-id="supplier1"
+        data-supplier-name="مؤسسة الخضار الطازجة"
+      >
+        <div class="flex items-start gap-4">
+          <div
+            class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0"
+          >
+            <img
+              src="https://readdy.ai/api/search-image?query=icon%2C%203D%20cartoon%20grocery%20store%20with%20fresh%20vegetables%20and%20fruits%2C%20supermarket%20building%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20vibrant%20colors%20with%20soft%20gradients%2C%20minimalist%20design%2C%20smooth%20rounded%20shapes%2C%20subtle%20shading%2C%20no%20outlines%2C%20centered%20composition%2C%20isolated%20on%20white%20background%2C%20playful%20and%20friendly%20aesthetic%2C%20isometric%20perspective%2C%20high%20detail%20quality%2C%20clean%20and%20modern%20look%2C%20single%20object%20focus&width=48&height=48&seq=supplier1&orientation=squarish"
+              alt="مؤسسة الخضار الطازجة"
+              class="w-full h-full object-cover object-top"
+            />
+          </div>
+          <div class="flex-1">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <h4 class="font-semibold text-gray-800">
+                  مؤسسة الخضار الطازجة
+                </h4>
+                <p class="text-sm text-gray-500">خضار وفواكه</p>
+              </div>
+              <span
+                class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-medium"
+                >مستحق</span
+              >
+            </div>
+            <div class="flex items-center gap-4 mb-3">
+              <div class="flex items-center gap-1">
+                <i class="ri-phone-line text-gray-400 text-sm"></i>
+                <span class="text-sm text-gray-600">0501234567</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <i class="ri-calendar-line text-gray-400 text-sm"></i>
+                <span class="text-sm text-gray-600">آخر معاملة: أمس</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-lg font-bold text-red-600">2,450 ر.س</p>
+                <p class="text-xs text-gray-500">المبلغ المستحق</p>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  class="edit-supplier-btn bg-gray-100 text-gray-600 px-3 py-2 rounded-lg text-sm !rounded-button cursor-pointer"
+                  data-supplier-id="supplier1"
+                >
+                  <i class="ri-edit-line text-sm"></i>
+                </button>
+                <button
+                  class="add-purchase-btn bg-secondary/20 text-secondary px-3 py-2 rounded-lg text-sm !rounded-button cursor-pointer"
+                  data-supplier-id="supplier1"
+                >
+                  <i class="ri-shopping-cart-line text-sm"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Supplier Card 2 -->
+    <div
+      class="supplier-card bg-white rounded-xl p-4 shadow-sm border cursor-pointer hover:shadow-md transition-shadow"
+      data-supplier-id="supplier1"
+      data-supplier-name="مؤسسة الخضار الطازجة"
+    >
+      <div
+        class="supplier-card bg-white rounded-xl p-4 shadow-sm border cursor-pointer hover:shadow-md transition-shadow"
+        data-supplier-id="supplier2"
+        data-supplier-name="مجزرة الأصالة"
+      >
+        <div class="flex items-start gap-4">
+          <div
+            class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0"
+          >
+            <img
+              src="https://readdy.ai/api/search-image?query=icon%2C%203D%20cartoon%20meat%20shop%20with%20fresh%20cuts%2C%20butcher%20store%20building%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20vibrant%20colors%20with%20soft%20gradients%2C%20minimalist%20design%2C%20smooth%20rounded%20shapes%2C%20subtle%20shading%2C%20no%20outlines%2C%20centered%20composition%2C%20isolated%20on%20white%20background%2C%20playful%20and%20friendly%20aesthetic%2C%20isometric%20perspective%2C%20high%20detail%20quality%2C%20clean%20and%20modern%20look%2C%20single%20object%20focus&width=48&height=48&seq=supplier2&orientation=squarish"
+              alt="مجزرة الأصالة"
+              class="w-full h-full object-cover object-top"
+            />
+          </div>
+          <div class="flex-1">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <h4 class="font-semibold text-gray-800">مجزرة الأصالة</h4>
+                <p class="text-sm text-gray-500">لحوم ودواجن</p>
+              </div>
+              <span
+                class="bg-green-100 text-green-600 px-2 py-1 rounded text-xs font-medium"
+                >مسدد</span
+              >
+            </div>
+            <div class="flex items-center gap-4 mb-3">
+              <div class="flex items-center gap-1">
+                <i class="ri-phone-line text-gray-400 text-sm"></i>
+                <span class="text-sm text-gray-600">0507654321</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <i class="ri-calendar-line text-gray-400 text-sm"></i>
+                <span class="text-sm text-gray-600">آخر معاملة: اليوم</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-lg font-bold text-green-600">0 ر.س</p>
+                <p class="text-xs text-gray-500">المبلغ المستحق</p>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  class="edit-supplier-btn bg-gray-100 text-gray-600 px-3 py-2 rounded-lg text-sm !rounded-button cursor-pointer"
+                  data-supplier-id="supplier2"
+                >
+                  <i class="ri-edit-line text-sm"></i>
+                </button>
+                <button
+                  class="add-purchase-btn bg-secondary/20 text-secondary px-3 py-2 rounded-lg text-sm !rounded-button cursor-pointer"
+                  data-supplier-id="supplier2"
+                >
+                  <i class="ri-shopping-cart-line text-sm"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Supplier Modal -->
+<div
+  id="addSupplierModal"
+  class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4"
+>
+  <div
+    class="bg-white rounded-2xl w-full max-w-md p-6 transform transition-all scale-95 opacity-0"
+  >
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-800">إضافة مورد جديد</h3>
+      <button
+        class="modal-close-btn w-8 h-8 flex items-center justify-center cursor-pointer"
+        data-modal="addSupplierModal"
+      >
+        <i class="ri-close-line text-gray-500 text-xl"></i>
+      </button>
+    </div>
+    <form id="add-supplier-form" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >اسم المورد</label
+        >
+        <input
+          type="text"
+          name="name"
+          class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+          placeholder="أدخل اسم المورد"
+          required
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >نوع النشاط</label
+        >
+        <input
+          type="text"
+          name="type"
+          class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+          placeholder="مثال: خضار وفواكه"
+          required
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >رقم الهاتف</label
+        >
+        <input
+          type="tel"
+          name="phone"
+          class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+          placeholder="05xxxxxxxx"
+          required
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >البريد الإلكتروني</label
+        >
+        <input
+          type="email"
+          name="email"
+          class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+          placeholder="supplier@example.com"
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >العنوان</label
+        >
+        <textarea
+          name="address"
+          class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+          rows="3"
+          placeholder="أدخل عنوان المورد"
+        ></textarea>
+      </div>
+      <div class="flex gap-3 pt-4">
+        <button
+          type="button"
+          class="modal-close-btn flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg !rounded-button cursor-pointer hover:bg-gray-300 transition-colors"
+          data-modal="addSupplierModal"
+        >
+          إلغاء
+        </button>
+        <button
+          type="submit"
+          class="flex-1 bg-secondary text-white py-3 rounded-lg !rounded-button cursor-pointer hover:bg-orange-600 transition-colors"
+        >
+          حفظ المورد
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Quick Actions Menu -->
+<div
+  id="quickActionsMenu"
+  class="fixed bottom-36 left-4 bg-white rounded-xl shadow-lg border p-2 z-40 hidden"
+>
+  <div class="space-y-1">
+    <button
+      id="quick-add-supplier-btn"
+      class="w-full flex items-center gap-3 px-4 py-3 text-right hover:bg-gray-50 rounded-lg cursor-pointer"
+    >
+      <div
+        class="w-8 h-8 bg-secondary/20 rounded-lg flex items-center justify-center"
+      >
+        <i class="ri-truck-line text-secondary text-lg"></i>
+      </div>
+      <span class="text-sm font-medium text-gray-700">إضافة مورد</span>
+    </button>
+    <button
+      id="quick-add-purchase-btn"
+      class="w-full flex items-center gap-3 px-4 py-3 text-right hover:bg-gray-50 rounded-lg cursor-pointer"
+    >
+      <div
+        class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center"
+      >
+        <i class="ri-shopping-cart-line text-green-600 text-lg"></i>
+      </div>
+      <span class="text-sm font-medium text-gray-700">تسجيل مشتراة</span>
+    </button>
+    <button
+      id="quick-add-payment-btn"
+      class="w-full flex items-center gap-3 px-4 py-3 text-right hover:bg-gray-50 rounded-lg cursor-pointer"
+    >
+      <div
+        class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center"
+      >
+        <i class="ri-money-dollar-circle-line text-blue-600 text-lg"></i>
+      </div>
+      <span class="text-sm font-medium text-gray-700">تسجيل دفعة</span>
+    </button>
+  </div>
+</div>

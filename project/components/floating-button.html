@@ -1,0 +1,28 @@
+<button
+  id="fab-btn"
+  onclick="handleFabClick()"
+  class="fab bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-full w-16 h-16 shadow-2xl flex items-center justify-center transition-all transform hover:scale-125 active:scale-95 cursor-pointer"
+  style="
+    position: fixed;
+    bottom: 100px;
+    left: 20px;
+    z-index: 40;
+    box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4);
+  "
+>
+  <i id="fab-icon" class="fas fa-plus text-2xl"></i>
+</button>
+
+<style>
+  .fab {
+    transition: all 0.3s ease;
+  }
+  
+  .fab:hover {
+    box-shadow: 0 12px 20px rgba(37, 99, 235, 0.6);
+  }
+  
+  .fab:active {
+    transform: scale(0.95);
+  }
+</style>

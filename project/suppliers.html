@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>الموردين - دفتر حسابات البوفية</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#3B82F6",
+            secondary: "#10B981",
+            emerald: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+            }
+          },
+          borderRadius: {
+            none: "0px",
+            sm: "4px",
+            DEFAULT: "8px",
+            md: "12px",
+            lg: "16px",
+            xl: "20px",
+            "2xl": "24px",
+            "3xl": "32px",
+            full: "9999px",
+            button: "8px",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap");
+    body {
+      font-family: "Tajawal", sans-serif;
+    }
+    .fab {
+      position: fixed;
+      bottom: 80px;
+      left: 20px;
+      z-index: 40;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+    }
+    .content-area {
+      padding-bottom: 100px;
+    }
+    .slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <div id="header"></div>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-6 content-area">
+    <div class="mb-6">
+      <!-- Statistics Cards -->
+      <div class="mb-6">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-white rounded-lg p-4 shadow-sm border">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                <i class="ri-money-dollar-circle-line text-red-600 text-lg"></i>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">إجمالي المستحقات</p>
+                <p class="text-lg font-bold text-red-600" id="totalPayables">0 ر.س</p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg p-4 shadow-sm border">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-secondary/20 rounded-lg flex items-center justify-center">
+                <i class="ri-truck-line text-secondary text-lg"></i>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">الموردين النشطين</p>
+                <p class="text-lg font-bold text-secondary" id="activeSuppliers">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg p-4 shadow-sm border">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <i class="ri-file-list-line text-yellow-600 text-lg"></i>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">الفواتير المعلقة</p>
+                <p class="text-lg font-bold text-yellow-600" id="pendingInvoices">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg p-4 shadow-sm border">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="ri-shopping-cart-line text-green-600 text-lg"></i>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">مشتريات الشهر</p>
+                <p class="text-lg font-bold text-green-600" id="monthlyPurchases">0 ر.س</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Search and Filter -->
+      <div class="mb-6">
+        <div class="bg-white rounded-lg p-4 shadow-sm border">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="flex-1 relative">
+              <input type="text" placeholder="البحث عن مورد..." class="w-full bg-gray-50 rounded-lg px-4 py-3 pr-10 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20" id="searchInput" />
+              <div class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center">
+                <i class="ri-search-line text-gray-400 text-lg"></i>
+              </div>
+            </div>
+            <button class="bg-primary text-white px-4 py-3 rounded-lg !rounded-button cursor-pointer">
+              <div class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-filter-line text-lg"></i>
+              </div>
+            </button>
+          </div>
+          <div class="flex gap-2 overflow-x-auto">
+            <button class="bg-primary text-white px-4 py-2 rounded-full text-sm whitespace-nowrap !rounded-button cursor-pointer filter-btn active" data-filter="all">الكل (0)</button>
+            <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-full text-sm whitespace-nowrap !rounded-button cursor-pointer filter-btn" data-filter="active">نشط (0)</button>
+            <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-full text-sm whitespace-nowrap !rounded-button cursor-pointer filter-btn" data-filter="pending">معلق (0)</button>
+            <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-full text-sm whitespace-nowrap !rounded-button cursor-pointer filter-btn" data-filter="debtor">مدين (0)</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">قائمة الموردين</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="suppliersList">
+        <!-- Suppliers will be loaded here -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Floating Action Button -->
+  <div id="floatingButton"></div>
+
+  <!-- Bottom Navigation -->
+  <div id="navbar"></div>
+
+  <!-- Modal Container -->
+  <div id="modalContainer"></div>
+
+  <!-- Load common JS -->
+  <script src="js/common.js"></script>
+
+  <!-- Page specific script -->
+  <script>
+    // Override updateCurrentPageData from common.js
+    function updateCurrentPageData() {
+      renderSuppliers();
+      updateStats();
+    }
+
+    // Current UI filter state
+    let currentSupplierFilter = 'all';
+
+    function matchesFilter(supplier, filter, query) {
+      // search query (by name or phone)
+      if (query) {
+        const q = query.trim().toLowerCase();
+        if (!supplier.name.toLowerCase().includes(q) && !(supplier.phone || '').toLowerCase().includes(q)) return false;
+      }
+
+      if (!filter || filter === 'all') return true;
+      if (filter === 'active') return true; // here active = all suppliers (keeps compatibility)
+      if (filter === 'pending') return supplier.transactions.some(t => t.type === 'purchase');
+      if (filter === 'debtor') return calculateSupplierBalance(supplier.id) > 0;
+      return true;
+    }
+
+    // Render suppliers with current filter and search
+    function renderSuppliers() {
+      const container = document.getElementById("suppliersList");
+      container.innerHTML = "";
+      const query = (document.getElementById('searchInput') || {value: ''}).value || '';
+
+      appData.suppliers
+        .filter(s => matchesFilter(s, currentSupplierFilter, query))
+        .forEach((supplier) => {
+          const balance = calculateSupplierBalance(supplier.id);
+          const card = createSupplierCard({
+            id: supplier.id,
+            name: supplier.name,
+            balance: balance,
+            phone: supplier.phone,
+          });
+          container.appendChild(card);
+        });
+    }
+
+    // Create supplier card
+    function createSupplierCard(data) {
+      const card = document.createElement("div");
+      card.className = "bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-200";
+
+      const balanceColor = data.balance <= 0 ? "text-green-600" : "text-red-600";
+      const balanceIcon = data.balance <= 0 ? "fa-check-circle" : "fa-exclamation-circle";
+
+      card.innerHTML = `
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+              ${data.name.charAt(0)}
+            </div>
+            <div class="mr-3">
+              <h3 class="font-bold text-lg">${data.name}</h3>
+              <p class="text-sm text-gray-600">${data.phone || "لا يوجد رقم"}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-sm text-gray-600">الرصيد</p>
+            <p class="${balanceColor} font-bold text-lg">
+              <i class="fas ${balanceIcon} ml-1"></i>
+              ${Math.abs(data.balance).toLocaleString("ar-EG")}
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2 justify-end">
+          <button onclick="addPurchaseInvoice(${data.id})" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition" title="إضافة فاتورة شراء">
+            <i class="fas fa-shopping-cart ml-1"></i>شراء
+          </button>
+          <button onclick="addPayment(${data.id})" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition" title="إضافة دفعة">
+            <i class="fas fa-money-bill ml-1"></i>دفع
+          </button>
+          <button onclick="showStatement(${data.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition" title="كشف الحساب">
+            <i class="fas fa-list-alt ml-1"></i>كشف
+          </button>
+          <button onclick="editSupplier(${data.id})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm transition" title="تعديل">
+            <i class="fas fa-edit ml-1"></i>تعديل
+          </button>
+          <button onclick="deleteSupplier(${data.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition" title="حذف">
+            <i class="fas fa-trash ml-1"></i>حذف
+          </button>
+        </div>
+      `;
+
+      return card;
+    }
+
+    // Calculate supplier balance
+    function calculateSupplierBalance(supplierId) {
+      const supplier = appData.suppliers.find((s) => s.id === supplierId);
+      if (!supplier) return 0;
+
+      let balance = 0;
+      supplier.transactions.forEach((t) => {
+        if (t.type === "purchase") balance += t.amount;
+        else if (t.type === "payment") balance -= t.amount;
+      });
+
+      return balance;
+    }
+
+    // Update statistics
+    function updateStats() {
+      const totalSuppliers = appData.suppliers.length;
+      document.getElementById("activeSuppliers").textContent = totalSuppliers;
+      
+      let totalPayables = 0;
+      let pendingInvoices = 0;
+      let monthlyPurchases = 0;
+      
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      
+      appData.suppliers.forEach(supplier => {
+        const balance = calculateSupplierBalance(supplier.id);
+        // Positive balance means supplier is owed (you owe supplier)
+        if (balance > 0) {
+          totalPayables += balance;
+        }
+
+        supplier.transactions.forEach(transaction => {
+          if (transaction.type === "purchase") {
+            pendingInvoices += 1; // count purchase invoices
+            const transactionDate = new Date(transaction.date);
+            if (transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear) {
+              monthlyPurchases += transaction.amount;
+            }
+          }
+        });
+      });
+      
+      document.getElementById("totalPayables").textContent = totalPayables.toLocaleString("ar-EG") + " ر.س";
+      document.getElementById("pendingInvoices").textContent = pendingInvoices;
+      document.getElementById("monthlyPurchases").textContent = monthlyPurchases.toLocaleString("ar-EG") + " ر.س";
+      
+      // Update filter buttons counts
+      document.querySelector('[data-filter="all"]').textContent = `الكل (${totalSuppliers})`;
+      document.querySelector('[data-filter="active"]').textContent = `نشط (${totalSuppliers})`;
+      document.querySelector('[data-filter="pending"]').textContent = `معلق (${pendingInvoices})`;
+      document.querySelector('[data-filter="debtor"]').textContent = `مدين (${appData.suppliers.filter(s => calculateSupplierBalance(s.id) > 0).length})`;
+    }
+
+    // Show add modal
+    function showAddModal() {
+      let modalContent = `
+        <h3 class="text-xl font-bold mb-4">إضافة مورد جديد</h3>
+        <form onsubmit="addNewSupplier(event)">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">اسم المورد</label>
+            <input type="text" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="name">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">رقم الهاتف</label>
+            <input type="tel" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="phone">
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">
+              إضافة
+            </button>
+            <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      `;
+
+      showModal(modalContent);
+    }
+
+    // Add new supplier
+    function addNewSupplier(event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const newSupplier = {
+        id: Date.now(),
+        name: formData.get("name"),
+        phone: formData.get("phone"),
+        transactions: [],
+      };
+
+      appData.suppliers.push(newSupplier);
+      saveDataToLocalStorage();
+      renderSuppliers();
+      updateStats();
+      closeModal();
+      showNotification("تم إضافة المورد بنجاح", "success");
+    }
+
+    // Edit supplier
+    function editSupplier(supplierId) {
+      const supplier = appData.suppliers.find(s => s.id === supplierId);
+      if (!supplier) return;
+
+      let modalContent = `
+        <h3 class="text-xl font-bold mb-4">تعديل بيانات المورد</h3>
+        <form onsubmit="saveSupplierEdit(event, ${supplierId})">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">اسم المورد</label>
+            <input type="text" required value="${supplier.name}" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="name">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">رقم الهاتف</label>
+            <input type="tel" value="${supplier.phone || ''}" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="phone">
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">
+              حفظ
+            </button>
+            <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      `;
+
+      showModal(modalContent);
+    }
+
+    // Save supplier edit
+    function saveSupplierEdit(event, supplierId) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const supplier = appData.suppliers.find(s => s.id === supplierId);
+      
+      if (supplier) {
+        supplier.name = formData.get("name");
+        supplier.phone = formData.get("phone");
+        
+        saveDataToLocalStorage();
+        renderSuppliers();
+        updateStats();
+        closeModal();
+        showNotification("تم تحديث بيانات المورد بنجاح", "success");
+      }
+    }
+
+    // Delete supplier
+    function deleteSupplier(supplierId) {
+      if (confirm("هل أنت متأكد من حذف هذا المورد؟")) {
+        appData.suppliers = appData.suppliers.filter(s => s.id !== supplierId);
+        saveDataToLocalStorage();
+        renderSuppliers();
+        updateStats();
+        showNotification("تم حذف المورد بنجاح", "success");
+      }
+    }
+
+    // Show modal
+    function showModal(content) {
+      const modal = document.createElement("div");
+      modal.className = "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4";
+      modal.innerHTML = `
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 slide-in">
+          ${content}
+        </div>
+      `;
+      document.getElementById("modalContainer").appendChild(modal);
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById("modalContainer").innerHTML = "";
+    }
+
+    // Add purchase invoice
+    function addPurchaseInvoice(supplierId) {
+      const supplier = appData.suppliers.find((s) => s.id === supplierId);
+      let modalContent = `
+        <h3 class="text-xl font-bold mb-4">إضافة فاتورة شراء - ${supplier.name}</h3>
+        <form onsubmit="savePurchaseInvoice(event, ${supplierId})">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">قيمة الفاتورة</label>
+            <input type="number" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="amount">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">وصف المشتريات</label>
+            <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="description" rows="3"></textarea>
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg transition">
+              حفظ الفاتورة
+            </button>
+            <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      `;
+
+      showModal(modalContent);
+    }
+
+    // Save purchase invoice
+    function savePurchaseInvoice(event, supplierId) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const amount = parseFloat(formData.get("amount"));
+      const description = formData.get("description");
+
+      if (amount <= 0) {
+        showNotification("يرجى إدخال مبلغ صحيح", "error");
+        return;
+      }
+
+      const supplier = appData.suppliers.find((s) => s.id === supplierId);
+      supplier.transactions.push({
+        id: Date.now(),
+        type: "purchase",
+        amount: amount,
+        date: new Date().toISOString(),
+        description: description || "فاتورة شراء جديدة",
+      });
+
+      saveDataToLocalStorage();
+      renderSuppliers();
+      updateStats();
+      closeModal();
+      showNotification("تم حفظ فاتورة الشراء بنجاح", "success");
+    }
+
+    // Add payment
+    function addPayment(supplierId) {
+      const supplier = appData.suppliers.find((s) => s.id === supplierId);
+      let modalContent = `
+        <h3 class="text-xl font-bold mb-4">إضافة دفعة - ${supplier.name}</h3>
+        <form onsubmit="savePayment(event, ${supplierId})">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">المبلغ</label>
+            <input type="number" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="amount">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">ملاحظات</label>
+            <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="notes" rows="3"></textarea>
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">
+              حفظ الدفعة
+            </button>
+            <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      `;
+
+      showModal(modalContent);
+    }
+
+    // Save payment
+    function savePayment(event, supplierId) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const amount = parseFloat(formData.get("amount"));
+      const notes = formData.get("notes");
+
+      if (amount <= 0) {
+        showNotification("يرجى إدخال مبلغ صحيح", "error");
+        return;
+      }
+
+      const supplier = appData.suppliers.find((s) => s.id === supplierId);
+      supplier.transactions.push({
+        id: Date.now(),
+        type: "payment",
+        amount: amount,
+        date: new Date().toISOString(),
+        description: notes || "دفع جديد",
+      });
+
+      saveDataToLocalStorage();
+      renderSuppliers();
+      updateStats();
+      closeModal();
+      showNotification("تم حفظ الدفعة بنجاح", "success");
+    }
+
+    // Show statement
+    function showStatement(supplierId) {
+      const supplier = appData.suppliers.find(s => s.id === supplierId);
+      const transactions = supplier.transactions;
+
+      let modalContent = `
+        <h3 class="text-xl font-bold mb-4">كشف حساب - ${supplier.name}</h3>
+        <div class="max-h-96 overflow-y-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b">
+                <th class="text-right p-2">التاريخ</th>
+                <th class="text-right p-2">الوصف</th>
+                <th class="text-right p-2">المبلغ</th>
+                <th class="text-right p-2">الرصيد</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      let balance = 0;
+      transactions
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .forEach((t) => {
+          const date = new Date(t.date).toLocaleDateString("ar-EG");
+          const typeText = t.type === "purchase" ? "شراء" : "دفع";
+          const amountClass = t.type === "payment" ? "text-green-600" : "text-red-600";
+
+          if (t.type === "purchase") {
+            balance += t.amount;
+          } else {
+            balance -= t.amount;
+          }
+
+          modalContent += `
+            <tr class="border-b hover:bg-gray-50">
+              <td class="p-2">${date}</td>
+              <td class="p-2">${t.description}</td>
+              <td class="p-2 ${amountClass}">${t.amount.toLocaleString("ar-EG")} ج.م</td>
+              <td class="p-2 font-medium">${balance.toLocaleString("ar-EG")} ج.م</td>
+            </tr>
+          `;
+        });
+
+      modalContent += `
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-4 flex justify-end">
+          <button onclick="closeModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg transition">
+            إغلاق
+          </button>
+        </div>
+      `;
+
+      showModal(modalContent);
+    }
+
+    // Setup filter buttons and search input
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          filterButtons.forEach(btn => {
+            btn.classList.remove('bg-primary', 'text-white');
+            btn.classList.add('bg-gray-100', 'text-gray-600');
+          });
+          
+          this.classList.remove('bg-gray-100', 'text-gray-600');
+          this.classList.add('bg-primary', 'text-white');
+          
+          // set current filter
+          currentSupplierFilter = this.getAttribute('data-filter') || 'all';
+          renderSuppliers();
+        });
+      });
+
+      // Search input
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', function() {
+          renderSuppliers();
+        });
+      }
+
+      // ensure initial render with default filter
+      renderSuppliers();
+      updateStats();
+    });
+
+    // Load components when DOM is ready
+    document.addEventListener("DOMContentLoaded", function() {
+      loadComponent('header', 'components/header.html');
+      loadComponent('navbar', 'components/navbar.html');
+      loadComponent('floatingButton', 'components/floating-button.html');
+      
+      // Set FAB action for this page - Add supplier
+      setTimeout(() => {
+        setFabAction(showAddModal, 'fa-truck', 'purple');
+      }, 500);
+    });
+  </script>
+</body>
+</html>

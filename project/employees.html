@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>الموظفين - دفتر حسابات البوفية</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#3B82F6",
+            secondary: "#10B981",
+            emerald: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+            }
+          },
+          borderRadius: {
+            none: "0px",
+            sm: "4px",
+            DEFAULT: "8px",
+            md: "12px",
+            lg: "16px",
+            xl: "20px",
+            "2xl": "24px",
+            "3xl": "32px",
+            full: "9999px",
+            button: "8px",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap");
+    body {
+      font-family: "Tajawal", sans-serif;
+    }
+    .fab {
+      position: fixed;
+      bottom: 80px;
+      left: 20px;
+      z-index: 40;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+    }
+    .content-area {
+      padding-bottom: 100px;
+    }
+    .slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <div id="header"></div>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-6 content-area">
+    <div class="mb-6">
+      <!-- Summary Section -->
+      <div class="mb-6">
+        <div class="bg-white rounded-xl p-6 shadow-sm border">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="text-center">
+              <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <i class="ri-team-fill text-blue-600 text-xl"></i>
+              </div>
+              <p class="text-2xl font-bold text-gray-800" id="totalEmployees">0</p>
+              <p class="text-sm text-gray-500">إجمالي الموظفين</p>
+            </div>
+            <div class="text-center">
+              <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <i class="ri-money-dollar-circle-fill text-green-600 text-xl"></i>
+              </div>
+              <p class="text-2xl font-bold text-gray-800" id="totalSalaries">0</p>
+              <p class="text-sm text-gray-500">إجمالي الرواتب (ر.س)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="employeesList">
+        <!-- Employees will be loaded here -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Floating Action Button -->
+  <div id="floatingButton"></div>
+
+  <!-- Bottom Navigation -->
+  <div id="navbar"></div>
+
+  <!-- Modal Container -->
+  <div id="modalContainer"></div>
+
+  <!-- Load common JS -->
+  <script src="js/common.js"></script>
+
+  <!-- Page specific script -->
+  <script>
+    // Override updateCurrentPageData from common.js
+    function updateCurrentPageData() {
+      renderEmployees();
+      updateStats();
+    }
+
+    // Render employees
+    function renderEmployees() {
+      const container = document.getElementById("employeesList");
+      container.innerHTML = "";
+
+      appData.employees.forEach((employee) => {
+        const balance = calculateEmployeeBalance(employee.id);
+        const card = createEmployeeCard({
+          id: employee.id,
+          name: employee.name,
+          role: employee.role,
+          balance: balance,
+          phone: employee.phone,
+        });
+        container.appendChild(card);
+      });
+    }
+
+    // Create employee card
+    function createEmployeeCard(data) {
+      const card = document.createElement("div");
+      card.className = "bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-200";
+
+      const balanceColor = data.balance >= 0 ? "text-green-600" : "text-red-600";
+      const balanceIcon = data.balance >= 0 ? "fa-arrow-up" : "fa-arrow-down";
+
+      card.innerHTML = `
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+              ${data.name.charAt(0)}
+            </div>
+            <div class="mr-3">
+              <h3 class="font-bold text-lg">${data.name}</h3>
+              <p class="text-sm text-gray-600">${data.role || "موظف"}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-sm text-gray-600">الرصيد</p>
+            <p class="${balanceColor} font-bold text-lg">
+              <i class="fas ${balanceIcon} ml-1"></i>
+              ${Math.abs(data.balance).toLocaleString("ar-EG")}
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2 justify-end">
+          <button onclick="addAdvance(${data.id})" class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm transition" title="إضافة سلفة">
+            <i class="fas fa-hand-holding-usd ml-1"></i>سلفة
+          </button>
+          <button onclick="addDeduction(${data.id})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition" title="إضافة خصم">
+            <i class="fas fa-minus-circle ml-1"></i>خصم
+          </button>
+          <button onclick="addSalary(${data.id})" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition" title="دفع راتب">
+            <i class="fas fa-money-check ml-1"></i>راتب
+          </button>
+          <button onclick="showStatement(${data.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition" title="كشف الحساب">
+            <i class="fas fa-list-alt ml-1"></i>كشف
+          </button>
+          <button onclick="editEmployee(${data.id})" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition" title="تعديل">
+            <i class="fas fa-edit ml-1"></i>تعديل
+          </button>
+          <button onclick="deleteEmployee(${data.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition" title="حذف">
+            <i class="fas fa-trash ml-1"></i>حذف
+          </button>
+        </div>
+      `;
+
+      return card;
+    }
+
+    // Calculate employee balance
+    function calculateEmployeeBalance(employeeId) {
+      const employee = appData.employees.find((e) => e.id === employeeId);
+      if (!employee) return 0;
+
+      let balance = 0;
+      employee.transactions.forEach((t) => {
+        if (t.type === "advance") balance += t.amount;
+        else if (t.type === "deduction") balance += t.amount;
+        else if (t.type === "salary") balance -= t.amount;
+      });
+
+      return balance;
+    }
+
+    // Update statistics
+    function updateStats() {
+      document.getElementById("totalEmployees").textContent = appData.employees.length;
+      
+      let totalSalaries = 0;
+      appData.employees.forEach(employee => {
+        totalSalaries += employee.salary || 0;
+      });
+      
+      document.getElementById("totalSalaries").textContent = totalSalaries.toLocaleString("ar-EG");
+    }
+
+    // Show add modal
+    function showAddModal() {
+      let modalContent = `
+        <h3 class="text-xl font-bold mb-4">إضافة موظف جديد</h3>
+        <form onsubmit="addNewEmployee(event)">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">اسم الموظف</label>
+            <input type="text" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="name">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">المنصب</label>
+            <input type="text" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="role">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">رقم الهاتف</label>
+            <input type="tel" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="phone">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">الراتب الأساسي</label>
+            <input type="number" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="salary">
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">
+              إضافة
+            </button>
+            <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      `;
+
+      showModal(modalContent);
+    }
+
+    // Add new employee
+    function addNewEmployee(event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const newEmployee = {
+        id: Date.now(),
+        name: formData.get("name"),
+        role: formData.get("role"),
+        phone: formData.get("phone"),
+        salary: parseFloat(formData.get("salary")),
+        transactions: [],
+      };
+
+      appData.employees.push(newEmployee);
+      saveDataToLocalStorage();
+      renderEmployees();
+      updateStats();
+      closeModal();
+      showNotification("تم إضافة الموظف بنجاح", "success");
+    }
+
+    // Edit employee
+    function editEmployee(employeeId) {
+      const employee = appData.employees.find(e => e.id === employeeId);
+      if (!employee) return;
+
+      let modalContent = `
+        <h3 class="text-xl font-bold mb-4">تعديل بيانات الموظف</h3>
+        <form onsubmit="saveEmployeeEdit(event, ${employeeId})">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">اسم الموظف</label>
+            <input type="text" required value="${employee.name}" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="name">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">المنصب</label>
+            <input type="text" required value="${employee.role || ''}" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="role">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">رقم الهاتف</label>
+            <input type="tel" value="${employee.phone || ''}" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="phone">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">الراتب الأساسي</label>
+            <input type="number" required value="${employee.salary}" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="salary">
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">
+              حفظ
+            </button>
+            <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      `;
+
+      showModal(modalContent);
+    }
+
+    // Save employee edit
+    function saveEmployeeEdit(event, employeeId) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const employee = appData.employees.find(e => e.id === employeeId);
+      
+      if (employee) {
+        employee.name = formData.get("name");
+        employee.role = formData.get("role");
+        employee.phone = formData.get("phone");
+        employee.salary = parseFloat(formData.get("salary"));
+        
+        saveDataToLocalStorage();
+        renderEmployees();
+        updateStats();
+        closeModal();
+        showNotification("تم تحديث بيانات الموظف بنجاح", "success");
+      }
+    }
+
+    // Delete employee
+    function deleteEmployee(employeeId) {
+      if (confirm("هل أنت متأكد من حذف هذا الموظف؟")) {
+        appData.employees = appData.employees.filter(e => e.id !== employeeId);
+        saveDataToLocalStorage();
+        renderEmployees();
+        updateStats();
+        showNotification("تم حذف الموظف بنجاح", "success");
+      }
+    }
+
+    // Show modal
+    function showModal(content) {
+      const modal = document.createElement("div");
+      modal.className = "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4";
+      modal.innerHTML = `
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 slide-in">
+          ${content}
+        </div>
+      `;
+      document.getElementById("modalContainer").appendChild(modal);
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById("modalContainer").innerHTML = "";
+    }
+
+    // Add advance
+    function addAdvance(employeeId) {
+      const employee = appData.employees.find((e) => e.id === employeeId);
+      let modalContent = `
+        <h3 class="text-xl font-bold mb-4">إضافة سلفة - ${employee.name}</h3>
+        <form onsubmit="saveAdvance(event, ${employeeId})">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">مبلغ السلفة</label>
+            <input type="number" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="amount">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">ملاحظات</label>
+            <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="notes" rows="3"></textarea>
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg transition">
+              حفظ السلفة
+            </button>
+            <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      `;
+
+      showModal(modalContent);
+    }
+
+    // Save advance
+    function saveAdvance(event, employeeId) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const amount = parseFloat(formData.get("amount"));
+      const notes = formData.get("notes");
+
+      if (amount <= 0) {
+        showNotification("يرجى إدخال مبلغ صحيح", "error");
+        return;
+      }
+
+      const employee = appData.employees.find((e) => e.id === employeeId);
+      employee.transactions.push({
+        id: Date.now(),
+        type: "advance",
+        amount: amount,
+        date: new Date().toISOString(),
+        description: notes || "سلفة جديدة",
+      });
+
+      saveDataToLocalStorage();
+      renderEmployees();
+      closeModal();
+      showNotification("تم حفظ السلفة بنجاح", "success");
+    }
+
+    // Add deduction
+    function addDeduction(employeeId) {
+      const employee = appData.employees.find((e) => e.id === employeeId);
+      let modalContent = `
+        <h3 class="text-xl font-bold mb-4">إضافة خصم - ${employee.name}</h3>
+        <form onsubmit="saveDeduction(event, ${employeeId})">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">مبلغ الخصم</label>
+            <input type="number" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="amount">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">سبب الخصم</label>
+            <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="reason" rows="3"></textarea>
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition">
+              حفظ الخصم
+            </button>
+            <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      `;
+
+      showModal(modalContent);
+    }
+
+    // Save deduction
+    function saveDeduction(event, employeeId) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const amount = parseFloat(formData.get("amount"));
+      const reason = formData.get("reason");
+
+      if (amount <= 0) {
+        showNotification("يرجى إدخال مبلغ صحيح", "error");
+        return;
+      }
+
+      const employee = appData.employees.find((e) => e.id === employeeId);
+      employee.transactions.push({
+        id: Date.now(),
+        type: "deduction",
+        amount: amount,
+        date: new Date().toISOString(),
+        description: reason || "خصم جديد",
+      });
+
+      saveDataToLocalStorage();
+      renderEmployees();
+      closeModal();
+      showNotification("تم حفظ الخصم بنجاح", "success");
+    }
+
+    // Add salary
+    function addSalary(employeeId) {
+      const employee = appData.employees.find((e) => e.id === employeeId);
+      let modalContent = `
+        <h3 class="text-xl font-bold mb-4">دفع راتب - ${employee.name}</h3>
+        <form onsubmit="saveSalary(event, ${employeeId})">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">الراتب الأساسي</label>
+            <input type="number" value="${employee.salary}" readonly class="w-full px-3 py-2 border rounded-lg bg-gray-100">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">المبلغ المدفوع</label>
+            <input type="number" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="amount">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-2">ملاحظات</label>
+            <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" name="notes" rows="3"></textarea>
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">
+              دفع الراتب
+            </button>
+            <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      `;
+
+      showModal(modalContent);
+    }
+
+    // Save salary
+    function saveSalary(event, employeeId) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const amount = parseFloat(formData.get("amount"));
+      const notes = formData.get("notes");
+
+      if (amount <= 0) {
+        showNotification("يرجى إدخال مبلغ صحيح", "error");
+        return;
+      }
+
+      const employee = appData.employees.find((e) => e.id === employeeId);
+      employee.transactions.push({
+        id: Date.now(),
+        type: "salary",
+        amount: amount,
+        date: new Date().toISOString(),
+        description: notes || "دفع راتب",
+      });
+
+      saveDataToLocalStorage();
+      renderEmployees();
+      closeModal();
+      showNotification("تم دفع الراتب بنجاح", "success");
+    }
+
+    // Show statement
+    function showStatement(employeeId) {
+      const employee = appData.employees.find(e => e.id === employeeId);
+      const transactions = employee.transactions;
+
+      let modalContent = `
+        <h3 class="text-xl font-bold mb-4">كشف حساب - ${employee.name}</h3>
+        <div class="max-h-96 overflow-y-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b">
+                <th class="text-right p-2">التاريخ</th>
+                <th class="text-right p-2">الوصف</th>
+                <th class="text-right p-2">المبلغ</th>
+                <th class="text-right p-2">الرصيد</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      let balance = 0;
+      transactions
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .forEach((t) => {
+          const date = new Date(t.date).toLocaleDateString("ar-EG");
+          const typeText = t.type === "advance" ? "سلفة" : t.type === "deduction" ? "خصم" : "راتب";
+          const amountClass = t.type === "salary" ? "text-green-600" : "text-red-600";
+
+          if (t.type === "advance" || t.type === "deduction") {
+            balance += t.amount;
+          } else {
+            balance -= t.amount;
+          }
+
+          modalContent += `
+            <tr class="border-b hover:bg-gray-50">
+              <td class="p-2">${date}</td>
+              <td class="p-2">${t.description}</td>
+              <td class="p-2 ${amountClass}">${t.amount.toLocaleString("ar-EG")} ج.م</td>
+              <td class="p-2 font-medium">${balance.toLocaleString("ar-EG")} ج.م</td>
+            </tr>
+          `;
+        });
+
+      modalContent += `
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-4 flex justify-end">
+          <button onclick="closeModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg transition">
+            إغلاق
+          </button>
+        </div>
+      `;
+
+      showModal(modalContent);
+    }
+
+    // Load components when DOM is ready
+    document.addEventListener("DOMContentLoaded", function() {
+      loadComponent('header', 'components/header.html');
+      loadComponent('navbar', 'components/navbar.html');
+      loadComponent('floatingButton', 'components/floating-button.html');
+      
+      // Set FAB action for this page - Add employee
+      setTimeout(() => {
+        setFabAction(showAddModal, 'fa-user-plus', 'blue');
+      }, 500);
+    });
+  </script>
+</body>
+</html>

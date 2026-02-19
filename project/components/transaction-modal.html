@@ -1,0 +1,60 @@
+<!-- Transaction Modal component (injected only on customers/employees/suppliers pages) -->
+<div id="transaction-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-end sm:items-center justify-center backdrop-blur-sm">
+  <div class="bg-white w-full sm:w-[450px] h-auto rounded-t-2xl sm:rounded-2xl shadow-2xl transform transition-all">
+    <div class="p-4 bg-gray-50 border-b rounded-t-2xl flex justify-between items-center">
+      <h2 class="text-lg font-bold text-gray-800" id="trans-modal-title">عملية جديدة</h2>
+      <button id="trans-close-btn" class="text-gray-500 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+    </div>
+
+    <div class="p-5">
+      <!-- Toggle Type -->
+      <div class="flex bg-gray-200 p-1 rounded-lg mb-5">
+        <button id="btn-type-invoice" class="flex-1 py-2 rounded-md text-sm font-bold bg-white text-emerald-600 shadow-sm transition-all">فاتورة / قيد</button>
+        <button id="btn-type-payment" class="flex-1 py-2 rounded-md text-sm font-bold text-gray-500 transition-all">دفعة نقدية</button>
+      </div>
+
+      <!-- Invoice Section -->
+      <div id="invoice-section">
+        <div class="relative mb-3">
+          <label class="text-xs font-bold text-gray-700 mb-1 block">اسم الصنف</label>
+          <input type="text" id="item-search" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="ابحث أو اكتب..." autocomplete="off">
+          <ul id="suggestions-list" class="suggestions-list hidden"></ul>
+        </div>
+        <div class="flex gap-3 mb-3">
+          <div class="w-1/2">
+            <label class="text-xs font-bold text-gray-700 mb-1 block">السعر</label>
+            <input type="number" id="item-price" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm" placeholder="0.00">
+          </div>
+          <div class="w-1/2">
+            <label class="text-xs font-bold text-gray-700 mb-1 block">الكمية</label>
+            <input type="number" id="item-qty" value="1" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm">
+          </div>
+        </div>
+        <button id="btn-add-item" class="w-full py-2 border-2 border-dashed border-blue-400 text-blue-600 rounded-lg text-sm font-bold hover:bg-blue-50 mb-3">+ إضافة للقائمة</button>
+
+        <div class="bg-gray-50 rounded-lg border p-2 h-32 overflow-y-auto mb-3" id="added-items-list">
+          <p class="text-center text-gray-400 text-xs mt-10">القائمة فارغة</p>
+        </div>
+      </div>
+
+      <!-- Payment Section -->
+      <div id="payment-section" class="hidden mb-6">
+        <label class="text-xs font-bold text-gray-700 mb-1 block">المبلغ المدفوع / المستلم</label>
+        <div class="relative">
+          <input type="number" id="direct-amount" class="w-full border border-gray-300 rounded-lg p-4 text-xl font-bold text-center text-green-600 focus:ring-2 focus:ring-green-500 focus:outline-none" placeholder="0.00">
+          <span class="absolute left-4 top-5 text-gray-400 text-sm">ر.س</span>
+        </div>
+        <textarea id="payment-note" class="w-full mt-3 border border-gray-300 rounded-lg p-2 text-sm" placeholder="ملاحظات (اختياري)"></textarea>
+      </div>
+
+      <!-- Footer -->
+      <div class="border-t pt-4 flex justify-between items-center">
+        <div>
+          <span class="text-xs text-gray-500 block">الإجمالي النهائي</span>
+          <span class="text-2xl font-bold text-blue-700" id="total-display">0.00</span>
+        </div>
+        <button id="btn-save-transaction" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transform active:scale-95 transition">حفظ</button>
+      </div>
+    </div>
+  </div>
+</div>

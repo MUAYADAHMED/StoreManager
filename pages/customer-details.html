@@ -1,0 +1,92 @@
+<!-- Page Header -->
+<div class="mb-6">
+    <div class="flex items-center gap-3 mb-4">
+        <button id="back-to-customers-btn" class="w-8 h-8 flex items-center justify-center cursor-pointer">
+            <i class="ri-arrow-right-line text-gray-600 text-xl"></i>
+        </button>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800" id="details-page-customer-name">اسم العميل</h1>
+            <p class="text-sm text-gray-500">تفاصيل الديون والمدفوعات</p>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Card -->
+<div class="bg-white rounded-xl p-6 shadow-sm border mb-6">
+    <div class="text-center">
+        <p class="text-xs text-gray-500">الرصيد الحالي</p>
+        <p class="text-2xl font-bold text-red-600" id="details-page-balance">0 ر.س</p>
+    </div>
+</div>
+
+<!-- Transactions List -->
+<div>
+    <h2 class="text-lg font-semibold mb-4 text-gray-800">سجل المعاملات</h2>
+    <ul id="details-page-transactions-list" class="space-y-3">
+        <!-- Transactions will be added here dynamically -->
+        <li class="text-gray-400 text-sm text-center p-4 bg-gray-50 rounded-lg">لا توجد معاملات مسجلة</li>
+    </ul>
+</div>
+
+<!-- Dynamic Transaction Modal -->
+<div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 transform transition-all scale-95 opacity-0 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">معاملة مالية جديدة</h3>
+            <button class="modal-close-btn w-8 h-8 flex items-center justify-center cursor-pointer" data-modal="transactionModal">
+                <i class="ri-close-line text-gray-500 text-xl"></i>
+            </button>
+        </div>
+        <form class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">العميل</label>
+                <div class="w-full bg-gray-100 rounded-lg px-4 py-3 text-sm border-none" id="transaction-customer-input" readonly>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">نوع المعاملة</label>
+                <div class="flex gap-3" id="transaction-type-buttons">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="transaction-type" value="debt" checked class="ml-2 text-primary focus:ring-primary">
+                        <span class="text-sm">دين (فاتورة شراء)</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="transaction-type" value="payment" class="ml-2 text-primary focus:ring-primary">
+                        <span class="text-sm">دفعة (تسديد)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Section for DEBT -->
+            <div id="debt-section">
+                <label class="block text-sm font-medium text-gray-700 mb-2">الطلبات</label>
+                <div class="relative">
+                    <input type="text" id="item-search-input" placeholder="ابحث عن منتج (مثال: شاي)..." class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <div id="autocomplete-dropdown" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden z-10"></div>
+                </div>
+                <div class="mt-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">الطلبات المضافة</label>
+                    <ul id="selected-items-list" class="space-y-2 border border-dashed border-gray-300 rounded-lg p-3 min-h-[80px]">
+                        <li class="text-gray-400 text-sm text-center">لم تتم إضافة أي منتجات بعد</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section for PAYMENT (initially hidden) -->
+            <div id="payment-section" style="display: none;">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">المبلغ (ر.س)</label>
+                    <input type="number" id="payment-amount-input" class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="أدخل المبلغ">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ملاحظات</label>
+                    <textarea id="payment-notes-input" class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none" rows="3" placeholder="تفاصيل إضافية (اختياري)"></textarea>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-4">
+                <button type="button" class="modal-close-btn flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg !rounded-button cursor-pointer hover:bg-gray-300 transition-colors" data-modal="transactionModal">إلغاء</button>
+                <button type="button" class="flex-1 bg-primary text-white py-3 rounded-lg !rounded-button cursor-pointer hover:bg-blue-600 transition-colors" onclick="saveTransactionOnDetailsPage()">حفظ المعاملة</button>
+            </div>
+        </form>
+    </div>
+</div>

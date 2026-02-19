@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>نظام إدارة - بوفية الأصالة</title>
+
+    <!-- Tailwind -->
+    <script src="assets/js/tailwind.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet" />
+
+    <!-- Remixicon -->
+    <link rel="stylesheet" href="assets/css/remixicon.css" />
+
+    <!-- Tailwind Config -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3B82F6",
+              secondary: "#10B981",
+            },
+            borderRadius: {
+              button: "8px"
+            }
+          },
+        },
+      };
+    </script>
+
+    <style>
+      body {
+        font-family: "Cairo", sans-serif;
+      }
+      .logo-font {
+        font-family: "Pacifico", serif;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-50 text-gray-900">
+
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 w-full bg-white shadow-sm z-50 px-4 py-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+              <i class="ri-restaurant-line text-white text-lg"></i>
+            </div>
+            <div>
+              <h1 class="logo-font text-lg text-primary">بوفية الأصالة</h1>
+              <p id="section-sub" class="text-xs text-gray-500">إدارة العملاء</p>
+            </div>
+          </div>
+        </div>
+        <div class="w-8 h-8 flex items-center justify-center cursor-pointer">
+          <i class="ri-notification-line text-gray-600 text-xl"></i>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Dynamic Content Area -->
+    <main id="page-content" class="pt-20 pb-20 px-4"></main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 px-0 py-2">
+      <div class="grid grid-cols-5 h-16">
+
+        <button id="nav-customers" onclick="loadPage('customers')"
+          class="nav-item flex flex-col items-center p-2 text-primary transition-colors">
+          <i class="ri-team-fill text-xl"></i>
+          <span class="text-xs mt-1">العملاء</span>
+        </button>
+
+        <button id="nav-employees" onclick="loadPage('employees')"
+          class="nav-item flex flex-col items-center p-2 text-gray-500 hover:text-primary transition-colors">
+          <i class="ri-briefcase-4-fill text-xl"></i>
+          <span class="text-xs mt-1">الموظفون</span>
+        </button>
+
+        <button id="nav-suppliers" onclick="loadPage('suppliers')"
+          class="nav-item flex flex-col items-center p-2 text-gray-500 hover:text-primary transition-colors">
+          <i class="ri-truck-fill text-xl"></i>
+          <span class="text-xs mt-1">الموردون</span>
+        </button>
+
+        <button id="nav-reports" onclick="loadPage('reports')"
+          class="nav-item flex flex-col items-center p-2 text-gray-500 hover:text-primary transition-colors">
+          <i class="ri-bar-chart-2-fill text-xl"></i>
+          <span class="text-xs mt-1">التقارير</span>
+        </button>
+
+        <button id="nav-backup" onclick="loadPage('settings')"
+          class="nav-item flex flex-col items-center p-2 text-gray-500 hover:text-primary transition-colors">
+          <i class="ri-settings-line text-xl"></i>
+          <span class="text-xs mt-1"> الإعدادات</span>
+        </button>
+
+      </div>
+    </nav>
+
+    <!-- Floating Action Button -->
+    <button id="fab-btn"
+      class="fixed bottom-20 left-4 w-14 h-14 bg-primary text-white rounded-full shadow-lg !rounded-button cursor-pointer hover:bg-blue-600 transition-colors z-40">
+      <div class="w-6 h-6 flex items-center justify-center mx-auto">
+        <i id="fab-icon" class="ri-user-add-fill text-2xl"></i>
+      </div>
+    </button>
+
+    <!-- App Script -->
+    <script src="assets/js/app.js"></script>
+    <script>
+      loadPage("customers");
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,85 @@
+<!-- Page Header -->
+<div class="mb-6">
+    <div class="flex items-center gap-3 mb-4">
+        <button id="back-to-employees-btn" class="w-8 h-8 flex items-center justify-center cursor-pointer">
+            <i class="ri-arrow-right-line text-gray-600 text-xl"></i>
+        </button>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800" id="details-page-employee-name">اسم الموظف</h1>
+            <p class="text-sm text-gray-500">تفاصيل الراتب والسلفات</p>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="bg-white rounded-xl p-6 shadow-sm border mb-6">
+    <div class="grid grid-cols-3 gap-4 text-center">
+        <div>
+            <p class="text-xs text-gray-500">الراتب الأساسي</p>
+            <p class="text-lg font-bold text-gray-800" id="details-page-salary">0 ر.س</p>
+        </div>
+        <div>
+            <p class="text-xs text-gray-500">إجمالي السلفات</p>
+            <p class="text-lg font-bold text-orange-600" id="details-page-total-advances">0 ر.س</p>
+        </div>
+        <div>
+            <p class="text-xs text-gray-500">الرصيد المتبقي</p>
+            <p class="text-lg font-bold text-green-600" id="details-page-remaining">0 ر.س</p>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="grid grid-cols-2 gap-3 mb-6">
+    <button id="record-advance-btn" class="bg-orange-500 text-white rounded-lg py-3 !rounded-button cursor-pointer hover:bg-orange-600 transition-colors">
+        <div class="flex items-center justify-center gap-2">
+            <i class="ri-hand-coin-line"></i>
+            <span class="text-sm font-medium">منح سلفة</span>
+        </div>
+    </button>
+    <button id="settle-salary-btn" class="bg-green-600 text-white rounded-lg py-3 !rounded-button cursor-pointer hover:bg-green-700 transition-colors">
+        <div class="flex items-center justify-center gap-2">
+            <i class="ri-money-dollar-circle-line"></i>
+            <span class="text-sm font-medium">تسديد الراتب</span>
+        </div>
+    </button>
+</div>
+
+<!-- Transactions List -->
+<div>
+    <h2 class="text-lg font-semibold mb-4 text-gray-800">سجل العمليات</h2>
+    <ul id="details-page-transactions-list" class="space-y-3">
+        <!-- Transactions will be added here dynamically -->
+        <li class="text-gray-400 text-sm text-center p-4 bg-gray-50 rounded-lg">لا توجد عمليات مسجلة</li>
+    </ul>
+</div>
+
+<!-- Advance Modal (Same as before, but it lives on this page now) -->
+<div id="advanceModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 transform transition-all scale-95 opacity-0">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">منح سلفة لموظف</h3>
+            <button class="modal-close-btn w-8 h-8 flex items-center justify-center cursor-pointer" data-modal="advanceModal">
+                <i class="ri-close-line text-gray-500 text-xl"></i>
+            </button>
+        </div>
+        <form class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">الموظف</label>
+                <input type="text" id="advance-employee-input" class="w-full bg-gray-100 rounded-lg px-4 py-3 text-sm border-none" readonly>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">مبلغ السلفة (ر.س)</label>
+                <input type="number" id="advance-amount-input" class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="أدخل المبلغ">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">ملاحظات أو تفاصيل</label>
+                <textarea id="advance-notes-input" class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none" rows="3" placeholder="سبب السلفة (اختياري)"></textarea>
+            </div>
+            <div class="flex gap-3 pt-4">
+                <button type="button" class="modal-close-btn flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg !rounded-button cursor-pointer hover:bg-gray-300 transition-colors" data-modal="advanceModal">إلغاء</button>
+                <button type="button" class="flex-1 bg-orange-500 text-white py-3 rounded-lg !rounded-button cursor-pointer hover:bg-orange-600 transition-colors" onclick="saveAdvanceOnDetailsPage()">منح السلفة</button>
+            </div>
+        </form>
+    </div>
+</div>

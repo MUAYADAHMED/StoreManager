@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تفاصيل العميل - دفتر حسابات البوفية</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#3B82F6",
+            secondary: "#10B981",
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap");
+    body { 
+      font-family: "Tajawal", sans-serif; 
+    }
+    .content-area { 
+      padding-bottom: 100px; 
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+    }
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50">
+
+  <!-- HEADER -->
+  <div class="bg-white shadow-sm px-4 py-3 flex items-center gap-3 sticky top-0 z-20">
+    <button onclick="goBack()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
+      <i class="ri-arrow-right-line text-xl text-gray-700"></i>
+    </button>
+
+    <div>
+      <h1 class="text-lg font-bold text-gray-800" id="customer-name">جاري التحميل...</h1>
+      <p class="text-xs text-gray-500">تفاصيل الديون والمدفوعات</p>
+    </div>
+
+    <div class="ml-auto flex gap-2">
+      <button onclick="exportStatement()"
+        class="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow hover:bg-gray-100">
+        <i class="ri-download-line text-gray-600 text-base"></i>
+      </button>
+
+      <button onclick="shareStatement()"
+        class="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow hover:bg-gray-100">
+        <i class="ri-share-line text-gray-600 text-base"></i>
+      </button>
+    </div>
+  </div>
+
+  <main class="container mx-auto px-4 pt-6 content-area">
+    <!-- Loading indicator -->
+    <div id="loading-indicator" class="text-center py-10">
+      <div class="loading-spinner"></div>
+      <p class="text-gray-500 mt-2">جاري تحميل بيانات العميل...</p>
+    </div>
+
+    <!-- Content (hidden initially) -->
+    <div id="content-area" class="hidden">
+      <!-- CUSTOMER CARD -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border mb-6">
+        <div class="flex items-center gap-6">
+
+          <!-- SMALLER AVATAR -->
+          <div class="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold" id="customer-avatar">
+            ح
+          </div>
+
+          <div class="flex-1">
+            <h2 class="font-bold text-xl text-gray-800" id="customer-fullname">اسم العميل</h2>
+            <p class="text-gray-600 text-sm flex items-center gap-1" id="customer-phone">
+              <i class="ri-phone-line text-gray-500"></i>
+              777777777
+            </p>
+
+            <div class="mt-2 flex gap-6 text-sm">
+              <p><span class="text-gray-500">عدد المعاملات:</span> <span class="font-bold" id="transaction-count">0</span></p>
+              <p><span class="text-gray-500">آخر معاملة:</span> <span class="font-bold" id="last-transaction">--</span></p>
+            </div>
+          </div>
+
+          <!-- SMALLER BALANCE BADGE -->
+          <div class="text-center">
+            <p class="text-[11px] text-gray-500 leading-none mb-1">الرصيد الحالي</p>
+            <p class="text-xl font-bold" id="customer-balance">0 ر.س</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+            <i class="ri-file-list-line text-blue-600 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">إجمالي الفواتير</p>
+            <p class="text-lg font-bold text-blue-600" id="total-invoices">0</p>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+            <i class="ri-money-dollar-circle-line text-green-600 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">إجمالي المدفوعات</p>
+            <p class="text-lg font-bold text-green-600" id="total-payments">0 ر.س</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="bg-white rounded-xl p-4 shadow-sm border mb-6">
+        <div class="flex justify-between flex-wrap gap-3">
+
+          <div class="flex gap-2">
+            <button class="px-3 py-1 bg-primary text-white rounded-full text-xs filter-btn active" data-filter="all">الكل</button>
+            <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs filter-btn" data-filter="invoice">فواتير</button>
+            <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs filter-btn" data-filter="payment">مدفوعات</button>
+          </div>
+
+          <div class="flex gap-2">
+            <button onclick="openTransactionModal()" class="bg-primary text-white px-4 py-2 rounded-lg text-sm flex gap-1 items-center">
+              <i class="ri-add-line"></i> إضافة معاملة
+            </button>
+
+            <button onclick="printStatement()" class="bg-white border px-4 py-2 rounded-lg text-sm flex gap-1 items-center">
+              <i class="ri-printer-line"></i> طباعة
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSACTIONS LIST -->
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">سجل المعاملات</h2>
+
+      <div class="space-y-4" id="transactions-list">
+        <!-- Transactions will be loaded here -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <div id="navbar"></div>
+
+  <!-- Transaction Modal -->
+  <div id="transaction-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-end sm:items-center justify-center backdrop-blur-sm">
+    <div class="bg-white w-full sm:w-[450px] h-auto rounded-t-2xl sm:rounded-2xl shadow-2xl transform transition-all">
+      <div class="p-4 bg-gray-50 border-b rounded-t-2xl flex justify-between items-center">
+        <h2 class="text-lg font-bold text-gray-800" id="trans-modal-title">عملية جديدة</h2>
+        <button id="trans-close-btn" class="text-gray-500 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+      </div>
+      
+      <div class="p-5">
+        <!-- Toggle Type -->
+        <div class="flex bg-gray-200 p-1 rounded-lg mb-5">
+          <button id="btn-type-invoice" class="flex-1 py-2 rounded-md text-sm font-bold bg-white text-emerald-600 shadow-sm transition-all">فاتورة / قيد</button>
+          <button id="btn-type-payment" class="flex-1 py-2 rounded-md text-sm font-bold text-gray-500 transition-all">دفعة نقدية</button>
+        </div>
+
+        <!-- Invoice Section -->
+        <div id="invoice-section">
+          <div class="relative mb-3">
+            <label class="text-xs font-bold text-gray-700 mb-1 block">اسم الصنف</label>
+            <input type="text" id="item-search" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="ابحث أو اكتب..." autocomplete="off">
+            <ul id="suggestions-list" class="suggestions-list hidden"></ul>
+          </div>
+          <div class="flex gap-3 mb-3">
+            <div class="w-1/2">
+              <label class="text-xs font-bold text-gray-700 mb-1 block">السعر</label>
+              <input type="number" id="item-price" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm" placeholder="0.00">
+            </div>
+            <div class="w-1/2">
+              <label class="text-xs font-bold text-gray-700 mb-1 block">الكمية</label>
+              <input type="number" id="item-qty" value="1" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm">
+            </div>
+          </div>
+          <button id="btn-add-item" class="w-full py-2 border-2 border-dashed border-blue-400 text-blue-600 rounded-lg text-sm font-bold hover:bg-blue-50 mb-3">+ إضافة للقائمة</button>
+          
+          <div class="bg-gray-50 rounded-lg border p-2 h-32 overflow-y-auto mb-3" id="added-items-list">
+            <p class="text-center text-gray-400 text-xs mt-10">القائمة فارغة</p>
+          </div>
+        </div>
+
+        <!-- Payment Section -->
+        <div id="payment-section" class="hidden mb-6">
+          <label class="text-xs font-bold text-gray-700 mb-1 block">المبلغ المدفوع / المستلم</label>
+          <div class="relative">
+            <input type="number" id="direct-amount" class="w-full border border-gray-300 rounded-lg p-4 text-xl font-bold text-center text-green-600 focus:ring-2 focus:ring-green-500 focus:outline-none" placeholder="0.00">
+            <span class="absolute left-4 top-5 text-gray-400 text-sm">ر.س</span>
+          </div>
+          <textarea id="payment-note" class="w-full mt-3 border border-gray-300 rounded-lg p-2 text-sm" placeholder="ملاحظات (اختياري)"></textarea>
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t pt-4 flex justify-between items-center">
+          <div>
+            <span class="text-xs text-gray-500 block">الإجمالي النهائي</span>
+            <span class="text-2xl font-bold text-blue-700" id="total-display">0.00</span>
+          </div>
+          <button id="btn-save-transaction" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transform active:scale-95 transition">حفظ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load common JS -->
+  <script src="js/common.js"></script>
+
+  <script>
+    // Global variables for transaction modal
+    let currentTransactionType = "invoice";
+    let currentCustomerId = null;
+    let invoiceItems = [];
+    let currentFilter = 'all';
+    let dataLoaded = false;
+
+    // Initialize page
+    document.addEventListener("DOMContentLoaded", function() {
+      // Get customer ID from localStorage
+      currentCustomerId = localStorage.getItem('currentCustomerId');
+      
+      // Load components
+      loadComponent('navbar', 'components/navbar.html');
+      loadComponent('floatingButton', 'components/floating-button.html');
+      
+      // تعيين الزر العائم لصفحة التفاصيل - إضافة عملية
+      setTimeout(() => {
+        setFabAction(openTransactionModal, 'fa-receipt', 'blue');
+      }, 500);
+      
+      // Check if customer ID exists
+      if (!currentCustomerId) {
+        showNotification("لم يتم تحديد العميل", "error");
+        goBack();
+        return;
+      }
+      
+      // Wait for data to load
+      waitForData();
+      
+      // Setup filter buttons
+      setupFilterButtons();
+      
+      // Setup transaction modal
+      setupTransactionModal();
+      
+      // Add event listener for save transaction
+      document.addEventListener('componentLoaded', function(e) {
+        if (e.detail && e.detail.componentId) {
+          // Components loaded
+        }
+      });
+    });
+
+    // Wait for data to be loaded
+    function waitForData() {
+      if (typeof appData !== 'undefined' && appData.customers && appData.customers.length > 0) {
+        dataLoaded = true;
+        loadCustomerData();
+      } else {
+        // If data not loaded yet, try again after a short delay
+        setTimeout(waitForData, 100);
+      }
+    }
+
+    // Load customer data
+    function loadCustomerData() {
+      // Find customer in appData
+      const customer = appData.customers.find(c => c.id == currentCustomerId);
+      
+      if (!customer) {
+        showNotification("العميل غير موجود", "error");
+        goBack();
+        return;
+      }
+      
+      // Hide loading indicator and show content
+      document.getElementById('loading-indicator').classList.add('hidden');
+      document.getElementById('content-area').classList.remove('hidden');
+      
+      // Update customer info
+      document.getElementById('customer-name').textContent = customer.name;
+      document.getElementById('customer-fullname').textContent = customer.name;
+      document.getElementById('customer-phone').innerHTML = `<i class="ri-phone-line text-gray-500"></i> ${customer.phone || 'لا يوجد رقم'}`;
+      document.getElementById('customer-avatar').textContent = customer.name.charAt(0);
+      
+      // Calculate balance
+      const balance = calculateCustomerBalance(customer.id);
+      const balanceElement = document.getElementById('customer-balance');
+      balanceElement.textContent = `${Math.abs(balance).toLocaleString("ar-EG")} ر.س`;
+      balanceElement.className = balance >= 0 ? "text-xl font-bold text-green-600" : "text-xl font-bold text-red-600";
+      
+      // Update transaction count
+      document.getElementById('transaction-count').textContent = customer.transactions.length;
+      
+      // Update last transaction date
+      if (customer.transactions.length > 0) {
+        const sortedTransactions = [...customer.transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+        const lastTransaction = new Date(sortedTransactions[0].date).toLocaleDateString("ar-EG");
+        document.getElementById('last-transaction').textContent = lastTransaction;
+      }
+      
+      // Calculate statistics
+      let totalInvoices = 0;
+      let totalPayments = 0;
+      
+      customer.transactions.forEach(transaction => {
+        if (transaction.type === 'invoice') {
+          totalInvoices++;
+        } else if (transaction.type === 'payment') {
+          totalPayments += transaction.amount;
+        }
+      });
+      
+      document.getElementById('total-invoices').textContent = totalInvoices;
+      document.getElementById('total-payments').textContent = `${totalPayments.toLocaleString("ar-EG")} ر.س`;
+      
+      // Render transactions
+      renderTransactions(customer.transactions);
+    }
+
+    // Calculate customer balance
+    function calculateCustomerBalance(customerId) {
+      const customer = appData.customers.find((c) => c.id == customerId);
+      if (!customer) return 0;
+
+      let balance = 0;
+      customer.transactions.forEach((t) => {
+        if (t.type === "invoice") balance += t.amount;
+        else if (t.type === "payment") balance -= t.amount;
+      });
+
+      return balance;
+    }
+
+    // Render transactions
+    function renderTransactions(transactions) {
+      const container = document.getElementById('transactions-list');
+      container.innerHTML = "";
+      
+      // Filter transactions based on current filter
+      let filteredTransactions = transactions;
+      if (currentFilter !== 'all') {
+        filteredTransactions = transactions.filter(t => t.type === currentFilter);
+      }
+      
+      // Sort transactions by date (newest first)
+      filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      if (filteredTransactions.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white border rounded-xl p-8 text-center">
+            <i class="ri-inbox-line text-4xl text-gray-300 mb-2"></i>
+            <p class="text-gray-500">لا توجد معاملات لعرضها</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // Render each transaction
+      filteredTransactions.forEach(transaction => {
+        const transactionElement = createTransactionElement(transaction);
+        container.appendChild(transactionElement);
+      });
+    }
+
+    // Create transaction element
+    function createTransactionElement(transaction) {
+      const div = document.createElement('div');
+      
+      if (transaction.type === 'invoice') {
+        div.className = "bg-white border rounded-xl p-4 shadow-sm";
+        
+        let itemsHtml = '';
+        if (transaction.items && transaction.items.length > 0) {
+          itemsHtml = `
+            <div class="bg-gray-50 p-3 rounded-lg mb-3 text-sm">
+              <p class="font-medium">تفاصيل الطلبات:</p>
+              <ul class="list-disc pr-5 mt-1 text-gray-700">
+                ${transaction.items.map(item => `<li>${item.name} × ${item.quantity} — ${item.price} ر.س</li>`).join('')}
+              </ul>
+            </div>
+          `;
+        }
+        
+        div.innerHTML = `
+          <div class="flex justify-between mb-2">
+            <p class="font-semibold text-gray-800">فاتورة #${transaction.id}</p>
+            <button onclick="shareInvoice(${transaction.id})" class="text-green-600 text-xl">
+              <i class="ri-whatsapp-line"></i>
+            </button>
+          </div>
+          <p class="text-sm text-gray-500 mb-2">التاريخ: ${new Date(transaction.date).toLocaleDateString("ar-EG")}</p>
+          ${itemsHtml}
+          <p class="font-bold text-red-600">المجموع: ${transaction.amount.toLocaleString("ar-EG")} ر.س</p>
+        `;
+      } else if (transaction.type === 'payment') {
+        div.className = "bg-green-50 border border-green-200 rounded-xl p-4 shadow-sm";
+        div.innerHTML = `
+          <p class="font-semibold text-green-700 mb-1">دفعة مستلمة</p>
+          <p class="text-sm text-gray-600">التاريخ: ${new Date(transaction.date).toLocaleDateString("ar-EG")}</p>
+          ${transaction.description ? `<p class="text-sm text-gray-600 mt-1">${transaction.description}</p>` : ''}
+          <p class="text-green-700 font-bold mt-2">+${transaction.amount.toLocaleString("ar-EG")} ر.س</p>
+        `;
+      }
+      
+      return div;
+    }
+
+    // Setup filter buttons
+    function setupFilterButtons() {
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Update active state
+          filterButtons.forEach(btn => {
+            btn.classList.remove('bg-primary', 'text-white');
+            btn.classList.add('bg-gray-100', 'text-gray-600');
+          });
+          
+          this.classList.remove('bg-gray-100', 'text-gray-600');
+          this.classList.add('bg-primary', 'text-white');
+          
+          // Update current filter
+          currentFilter = this.dataset.filter;
+          
+          // Reload customer data to apply filter
+          if (dataLoaded) {
+            const customer = appData.customers.find(c => c.id == currentCustomerId);
+            if (customer) {
+              renderTransactions(customer.transactions);
+            }
+          }
+        });
+      });
+    }
+
+    // Setup transaction modal
+    function setupTransactionModal() {
+      // Toggle transaction type buttons
+      document.getElementById('btn-type-invoice').addEventListener('click', () => toggleTransType('invoice'));
+      document.getElementById('btn-type-payment').addEventListener('click', () => toggleTransType('payment'));
+      
+      // Add item button
+      document.getElementById('btn-add-item').addEventListener('click', addItemToInvoice);
+      
+      // Save transaction button
+      document.getElementById('btn-save-transaction').addEventListener('click', saveTransaction);
+      
+      // Close modal button
+      document.getElementById('trans-close-btn').addEventListener('click', closeTransactionModal);
+      
+      // Direct amount input
+      document.getElementById('direct-amount').addEventListener('input', updateTotal);
+      
+      // Setup click outside to close suggestions
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('#item-search') && !e.target.closest('#suggestions-list')) {
+          document.getElementById('suggestions-list').classList.add('hidden');
+        }
+      });
+    }
+
+    // Go back to customers page
+    function goBack() {
+      localStorage.removeItem('currentCustomerId');
+      window.location.href = 'customers.html';
+    }
+
+    // Open transaction modal
+    function openTransactionModal() {
+      const customer = appData.customers.find(c => c.id == currentCustomerId);
+      
+      // Reset modal state
+      currentTransactionType = 'invoice';
+      invoiceItems = [];
+      document.getElementById('btn-type-invoice').classList.add('bg-white', 'text-emerald-600');
+      document.getElementById('btn-type-invoice').classList.remove('text-gray-500');
+      document.getElementById('btn-type-payment').classList.remove('bg-white', 'text-emerald-600');
+      document.getElementById('btn-type-payment').classList.add('text-gray-500');
+      document.getElementById('invoice-section').classList.remove('hidden');
+      document.getElementById('payment-section').classList.add('hidden');
+      document.getElementById('added-items-list').innerHTML = '<p class="text-center text-gray-400 text-xs mt-4">لا توجد أصناف مضافة</p>';
+      document.getElementById('total-display').textContent = '0.00';
+      
+      // Update modal title
+      document.getElementById('trans-modal-title').textContent = `إضافة عملية جديدة - ${customer.name}`;
+      
+      // Show modal
+      document.getElementById('transaction-modal').classList.remove('hidden');
+      
+      // Setup item search
+      setupItemSearch();
+    }
+
+    // Toggle transaction type
+    function toggleTransType(type) {
+      currentTransactionType = type;
+      
+      if (type === 'invoice') {
+        document.getElementById('btn-type-invoice').classList.add('bg-white', 'text-emerald-600');
+        document.getElementById('btn-type-invoice').classList.remove('text-gray-500');
+        document.getElementById('btn-type-payment').classList.remove('bg-white', 'text-emerald-600');
+        document.getElementById('btn-type-payment').classList.add('text-gray-500');
+        document.getElementById('invoice-section').classList.remove('hidden');
+        document.getElementById('payment-section').classList.add('hidden');
+      } else {
+        document.getElementById('btn-type-payment').classList.add('bg-white', 'text-emerald-600');
+        document.getElementById('btn-type-payment').classList.remove('text-gray-500');
+        document.getElementById('btn-type-invoice').classList.remove('bg-white', 'text-emerald-600');
+        document.getElementById('btn-type-invoice').classList.add('text-gray-500');
+        document.getElementById('invoice-section').classList.add('hidden');
+        document.getElementById('payment-section').classList.remove('hidden');
+      }
+      
+      updateTotal();
+    }
+
+    // Setup item search
+    function setupItemSearch() {
+      const searchInput = document.getElementById('item-search');
+      searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const suggestionsList = document.getElementById('suggestions-list');
+        
+        if (query.length < 1) {
+          suggestionsList.classList.add('hidden');
+          return;
+        }
+        
+        const filteredItems = appData.items.filter(item => 
+          item.name.toLowerCase().includes(query)
+        );
+        
+        if (filteredItems.length > 0) {
+          suggestionsList.innerHTML = filteredItems.map(item => `
+            <li onclick="selectItemFromSearch(${item.id})">${item.name} - ${item.price} ر.س</li>
+          `).join('');
+          suggestionsList.classList.remove('hidden');
+        } else {
+          suggestionsList.classList.add('hidden');
+        }
+      });
+    }
+
+    // Select item from search
+    function selectItemFromSearch(itemId) {
+      const item = appData.items.find(i => i.id === itemId);
+      if (item) {
+        document.getElementById('item-search').value = item.name;
+        document.getElementById('item-price').value = item.price;
+        document.getElementById('suggestions-list').classList.add('hidden');
+      }
+    }
+
+    // Add item to invoice
+    function addItemToInvoice() {
+      const itemName = document.getElementById('item-search').value;
+      const itemPrice = parseFloat(document.getElementById('item-price').value) || 0;
+      const itemQty = parseInt(document.getElementById('item-qty').value) || 1;
+      
+      if (!itemName || itemPrice <= 0 || itemQty <= 0) {
+        showNotification('يرجى إدخال بيانات الصنف بشكل صحيح', 'error');
+        return;
+      }
+      
+      const item = {
+        id: Date.now(),
+        name: itemName,
+        price: itemPrice,
+        quantity: itemQty,
+        total: itemPrice * itemQty
+      };
+      
+      invoiceItems.push(item);
+      renderAddedItems();
+      
+      // Reset form
+      document.getElementById('item-search').value = '';
+      document.getElementById('item-price').value = '';
+      document.getElementById('item-qty').value = '1';
+      
+      updateTotal();
+    }
+
+    // Render added items
+    function renderAddedItems() {
+      const container = document.getElementById('added-items-list');
+      
+      if (invoiceItems.length === 0) {
+        container.innerHTML = '<p class="text-center text-gray-400 text-xs mt-4">لا توجد أصناف مضافة</p>';
+        return;
+      }
+      
+      container.innerHTML = invoiceItems.map(item => `
+        <div class="flex justify-between items-center p-2 bg-white rounded mb-1">
+          <div>
+            <div class="font-medium text-sm">${item.name}</div>
+            <div class="text-xs text-gray-500">${item.price} × ${item.quantity}</div>
+          </div>
+          <div class="flex items-center">
+            <span class="font-bold ml-2">${item.total.toFixed(2)}</span>
+            <button onclick="removeInvoiceItem(${item.id})" class="text-red-500 hover:text-red-700">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Remove invoice item
+    function removeInvoiceItem(itemId) {
+      invoiceItems = invoiceItems.filter(item => item.id !== itemId);
+      renderAddedItems();
+      updateTotal();
+    }
+
+    // Update total
+    function updateTotal() {
+      let total = 0;
+      
+      if (currentTransactionType === 'invoice') {
+        total = invoiceItems.reduce((sum, item) => sum + item.total, 0);
+      } else {
+        total = parseFloat(document.getElementById('direct-amount').value) || 0;
+      }
+      
+      document.getElementById('total-display').textContent = total.toFixed(2);
+    }
+
+    // Save transaction
+    function saveTransaction() {
+      let amount = 0;
+      let description = '';
+      
+      if (currentTransactionType === 'invoice') {
+        if (invoiceItems.length === 0) {
+          showNotification('يرجى إضافة أصناف للفاتورة', 'error');
+          return;
+        }
+        
+        amount = invoiceItems.reduce((sum, item) => sum + item.total, 0);
+        description = `فاتورة جديدة (${invoiceItems.length} أصناف)`;
+      } else {
+        amount = parseFloat(document.getElementById('direct-amount').value) || 0;
+        
+        if (amount <= 0) {
+          showNotification('يرجى إدخال مبلغ صحيح', 'error');
+          return;
+        }
+        
+        description = document.getElementById('payment-note').value || 'دفعة نقدية';
+      }
+      
+      // Add transaction to the customer
+      const customer = appData.customers.find(c => c.id == currentCustomerId);
+      customer.transactions.push({
+        id: Date.now(),
+        type: currentTransactionType === 'invoice' ? 'invoice' : 'payment',
+        amount: amount,
+        date: new Date().toISOString(),
+        description: description,
+        items: currentTransactionType === 'invoice' ? invoiceItems : []
+      });
+      
+      // Save data to localStorage
+      saveDataToLocalStorage();
+      
+      // Close modal and reload data
+      closeTransactionModal();
+      loadCustomerData();
+      showNotification('تم حفظ العملية بنجاح', 'success');
+    }
+
+    // Close transaction modal
+    function closeTransactionModal() {
+      document.getElementById('transaction-modal').classList.add('hidden');
+      // Reset form
+      invoiceItems = [];
+      document.getElementById('added-items-list').innerHTML = '<p class="text-center text-gray-400 text-xs mt-4">لا توجد أصناف مضافة</p>';
+      document.getElementById('total-display').textContent = '0.00';
+      document.getElementById('item-search').value = '';
+      document.getElementById('item-price').value = '';
+      document.getElementById('item-qty').value = '1';
+      document.getElementById('direct-amount').value = '';
+      document.getElementById('payment-note').value = '';
+      document.getElementById('suggestions-list').classList.add('hidden');
+    }
+
+    // Share invoice
+    function shareInvoice(id) {
+      const customer = appData.customers.find(c => c.id == currentCustomerId);
+      const msg = `فاتورة رقم ${id} للعميل ${customer.name} — من تطبيق دفتر حسابات البوفية`;
+      const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      window.open(url, "_blank");
+    }
+
+    // Share statement
+    function shareStatement() {
+      const customer = appData.customers.find(c => c.id == currentCustomerId);
+      const balance = calculateCustomerBalance(currentCustomerId);
+      const msg = `كشف حساب العميل ${customer.name}\nالرصيد الحالي: ${balance.toLocaleString("ar-EG")} ر.س\nمن تطبيق دفتر حسابات البوفية`;
+      const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      window.open(url, "_blank");
+    }
+
+    // Export statement
+    function exportStatement() {
+      showNotification("سيتم تطوير خاصية التصدير لاحقاً", "info");
+    }
+
+    // Print statement
+    function printStatement() {
+      showNotification("سيتم تطوير خاصية الطباعة لاحقاً", "info");
+    }
+  </script>
+
+</body>
+</html>

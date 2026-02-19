@@ -1,0 +1,188 @@
+<!-- Page Title -->
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">إدارة العملاء</h2>
+    <p class="text-sm text-gray-600">إدارة حسابات العملاء ومتابعة الديون المستحقة</p>
+</div>
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="bg-white rounded-lg p-4 shadow-sm border">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="ri-user-line text-blue-600 text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">إجمالي العملاء</p>
+                <p class="text-lg font-bold text-blue-600">127</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg p-4 shadow-sm border">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                <i class="ri-money-dollar-circle-line text-red-600 text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">إجمالي الديون</p>
+                <p class="text-lg font-bold text-red-600">8,450 ر.س</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg p-4 shadow-sm border">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i class="ri-alarm-warning-line text-orange-600 text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">ديون متأخرة</p>
+                <p class="text-lg font-bold text-orange-600">2,150 ر.س</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg p-4 shadow-sm border">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="ri-user-add-line text-green-600 text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">عملاء جدد</p>
+                <p class="text-lg font-bold text-green-600">12</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="bg-white rounded-xl p-4 shadow-sm border mb-4">
+    <div class="relative mb-4">
+        <input type="text" id="customer-search-input" placeholder="البحث بالاسم أو رقم الهاتف..." class="w-full bg-gray-50 rounded-lg pl-4 pr-12 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20">
+        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center">
+            <i class="ri-search-line text-gray-400 text-lg"></i>
+        </div>
+    </div>
+    <div class="flex gap-2 overflow-x-auto pb-2" id="filter-buttons">
+        <button class="filter-btn px-3 py-1 bg-primary text-white rounded-full text-xs whitespace-nowrap !rounded-button cursor-pointer" data-filter="all">الكل</button>
+        <button class="filter-btn px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs whitespace-nowrap !rounded-button cursor-pointer" data-filter="debt">لديهم ديون</button>
+        <button class="filter-btn px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs whitespace-nowrap !rounded-button cursor-pointer" data-filter="overdue">ديون متأخرة</button>
+        <button class="filter-btn px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs whitespace-nowrap !rounded-button cursor-pointer" data-filter="active">عملاء نشطون</button>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="flex gap-3 mb-6">
+    <button id="add-customer-btn" class="flex-1 bg-primary text-white rounded-lg py-3 px-4 !rounded-button cursor-pointer hover:bg-blue-600 transition-colors">
+        <div class="flex items-center justify-center gap-2">
+            <div class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-user-add-line text-lg"></i>
+            </div>
+            <span class="text-sm font-medium">إضافة عميل جديد</span>
+        </div>
+    </button>
+    <button id="add-transaction-btn" class="flex-1 bg-secondary text-white rounded-lg py-3 px-4 !rounded-button cursor-pointer hover:bg-green-600 transition-colors">
+        <div class="flex items-center justify-center gap-2">
+            <div class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-money-dollar-circle-line text-lg"></i>
+            </div>
+            <span class="text-sm font-medium">معاملة مالية</span>
+        </div>
+    </button>
+</div>
+
+<!-- Customer List -->
+<div class="space-y-3" id="customerList">
+    <!-- Customer Card 1 -->
+    <div class="customer-card bg-white rounded-xl p-4 shadow-sm border cursor-pointer hover:shadow-md transition-shadow" data-customer-name="أحمد محمد العلي" data-customer-balance="-450">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span class="text-blue-600 font-bold text-lg">أ</span>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800">أحمد محمد العلي</h3>
+                    <p class="text-sm text-gray-500">0501234567</p>
+                    <p class="text-xs text-gray-400">آخر معاملة: منذ 3 أيام</p>
+                </div>
+            </div>
+            <div class="text-left">
+                <p class="text-lg font-bold text-red-600">-450 ر.س</p>
+                <span class="inline-block bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">متأخر</span>
+            </div>
+        </div>
+    </div>
+    <!-- Customer Card 2 -->
+    <div class="customer-card bg-white rounded-xl p-4 shadow-sm border cursor-pointer hover:shadow-md transition-shadow" data-customer-name="فاطمة أحمد السالم" data-customer-balance="+120">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
+                    <span class="text-pink-600 font-bold text-lg">ف</span>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800">فاطمة أحمد السالم</h3>
+                    <p class="text-sm text-gray-500">0509876543</p>
+                    <p class="text-xs text-gray-400">آخر معاملة: اليوم</p>
+                </div>
+            </div>
+            <div class="text-left">
+                <p class="text-lg font-bold text-green-600">+120 ر.س</p>
+                <span class="inline-block bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">مدفوع</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Customer Modal -->
+<div id="addCustomerModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 transform transition-all scale-95 opacity-0">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">إضافة عميل جديد</h3>
+            <button class="modal-close-btn w-8 h-8 flex items-center justify-center cursor-pointer" data-modal="addCustomerModal">
+                <i class="ri-close-line text-gray-500 text-xl"></i>
+            </button>
+        </div>
+        <form class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">اسم العميل</label>
+                <input type="text" class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="أدخل اسم العميل">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">رقم الهاتف</label>
+                <input type="tel" class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="05xxxxxxxx">
+            </div>
+            <div class="flex gap-3 pt-4">
+                <button type="button" class="modal-close-btn flex-1 bg-gray-200 text-gray-800 rounded-lg py-3 !rounded-button cursor-pointer hover:bg-gray-300 transition-colors" data-modal="addCustomerModal">إلغاء</button>
+                <button type="submit" class="flex-1 bg-primary text-white rounded-lg py-3 !rounded-button cursor-pointer hover:bg-blue-600 transition-colors" onclick="saveNewCustomer()">حفظ</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Transaction Modal -->
+<div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 transform transition-all scale-95 opacity-0">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">معاملة مالية جديدة</h3>
+            <button class="modal-close-btn w-8 h-8 flex items-center justify-center cursor-pointer" data-modal="transactionModal">
+                <i class="ri-close-line text-gray-500 text-xl"></i>
+            </button>
+        </div>
+        <form class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">العميل</label>
+                <div class="w-full bg-gray-50 rounded-lg px-4 py-3 text-sm border-none focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer" id="selected-customer-display">
+                    <span class="text-gray-500">اختر العميل</span>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">نوع المعاملة</label>
+                <div class="flex gap-2" id="transaction-type-buttons">
+                    <button class="transaction-type-btn flex-1 px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm !rounded-button cursor-pointer" data-type="دين">دين</button>
+                    <button class="transaction-type-btn flex-1 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm !rounded-button cursor-pointer" data-type="دفعة">دفعة</button>
+                </div>
+            </div>
+            <div class="flex gap-3 pt-4">
+                <button type="button" class="modal-close-btn flex-1 bg-gray-200 text-gray-800 rounded-lg py-3 !rounded-button cursor-pointer hover:bg-gray-300 transition-colors" data-modal="transactionModal">إلغاء</button>
+                <button type="submit" class="flex-1 bg-primary text-white rounded-lg py-3 !rounded-button cursor-pointer hover:bg-blue-600 transition-colors" onclick="saveTransaction()">حفظ</button>
+            </div>
+        </form>
+    </div>
+</div>

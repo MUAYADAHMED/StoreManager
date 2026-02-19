@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>الإعدادات - دفتر حسابات البوفية</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#3B82F6",
+            secondary: "#10B981",
+            emerald: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+            }
+          },
+          borderRadius: {
+            none: "0px",
+            sm: "4px",
+            DEFAULT: "8px",
+            md: "12px",
+            lg: "16px",
+            xl: "20px",
+            "2xl": "24px",
+            "3xl": "32px",
+            full: "9999px",
+            button: "8px",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap");
+    body {
+      font-family: "Tajawal", sans-serif;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+    }
+    .content-area {
+      padding-bottom: 100px;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <div id="header"></div>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-6 content-area">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">الإعدادات</h2>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h3 class="text-lg font-semibold mb-4 flex items-center">
+          <i class="fas fa-database ml-2 text-blue-600"></i>
+          إدارة البيانات
+        </h3>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div>
+              <p class="font-medium">استيراد البيانات</p>
+              <p class="text-sm text-gray-600">تحميل بيانات من ملف JSON</p>
+            </div>
+            <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)" />
+            <button onclick="document.getElementById('importFile').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+              <i class="fas fa-upload ml-2"></i>استيراد
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div>
+              <p class="font-medium">تصدير البيانات</p>
+              <p class="text-sm text-gray-600">حفظ البيانات الحالية في ملف JSON</p>
+            </div>
+            <button onclick="exportData()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+              <i class="fas fa-download ml-2"></i>تصدير
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold mb-4 flex items-center">
+          <i class="fas fa-info-circle ml-2 text-blue-600"></i>
+          معلومات النظام
+        </h3>
+        <div class="space-y-3">
+          <div class="flex justify-between">
+            <span class="text-gray-600">الإصدار</span>
+            <span class="font-medium">1.0.0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">آخر تحديث</span>
+            <span class="font-medium" id="lastUpdate">--</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">عدد العملاء</span>
+            <span class="font-medium" id="customersCount">0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">عدد الموظفين</span>
+            <span class="font-medium" id="employeesCount">0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">عدد الموردين</span>
+            <span class="font-medium" id="suppliersCount">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <div id="navbar"></div>
+
+  <!-- Load common JS -->
+  <script src="js/common.js"></script>
+
+  <!-- Page specific script -->
+  <script>
+    // Override updateCurrentPageData from common.js
+    function updateCurrentPageData() {
+      updateStats();
+    }
+
+    // Update statistics
+    function updateStats() {
+      document.getElementById("customersCount").textContent = appData.customers.length;
+      document.getElementById("employeesCount").textContent = appData.employees.length;
+      document.getElementById("suppliersCount").textContent = appData.suppliers.length;
+      document.getElementById("lastUpdate").textContent = new Date().toLocaleString("ar-EG");
+    }
+
+    // Import data
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          // basic validation
+          if (!data || typeof data !== 'object' || !Array.isArray(data.customers) || !Array.isArray(data.employees) || !Array.isArray(data.suppliers)) {
+            showNotification("هيكلة ملف غير صحيحة. يجب أن يحتوي على customers, employees, suppliers", "error");
+            event.target.value = '';
+            return;
+          }
+
+          appData = data;
+          // persist imported data to localStorage and server (if available)
+          if (typeof saveDataToLocalStorage === 'function') {
+            saveDataToLocalStorage();
+          }
+          updateStats();
+          showNotification("تم استيراد البيانات بنجاح", "success");
+          // clear file input so same file can be imported again if needed
+          event.target.value = '';
+        } catch (error) {
+          showNotification("خطأ في ملف البيانات", "error");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Export data
+    function exportData() {
+      const dataStr = JSON.stringify(appData, null, 2);
+      const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+
+      const exportFileDefaultName = `buffet-data-${new Date().toISOString().split("T")[0]}.json`;
+
+      const linkElement = document.createElement("a");
+      linkElement.setAttribute("href", dataUri);
+      linkElement.setAttribute("download", exportFileDefaultName);
+      linkElement.click();
+
+      showNotification("تم تصدير البيانات بنجاح", "success");
+    }
+
+    // Load components when DOM is ready
+    document.addEventListener("DOMContentLoaded", function() {
+      loadComponent('header', 'components/header.html');
+      loadComponent('navbar', 'components/navbar.html');
+    });
+  </script>
+</body>
+</html>

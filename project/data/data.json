@@ -1,0 +1,186 @@
+{
+  "customers": [
+    {
+      "id": 1,
+      "name": "محمد أحمد",
+      "phone": "96777123456",
+      "balance": 0,
+      "transactions": []
+    },
+    {
+      "id": 2,
+      "name": "شركة النور",
+      "phone": "",
+      "balance": 1500,
+      "transactions": [
+        {
+          "id": 1771464590211,
+          "type": "payment",
+          "amount": 100,
+          "date": "2026-02-19T01:29:50.211Z",
+          "description": "دفعة نقدية",
+          "items": []
+        },
+        {
+          "id": 1771464572559,
+          "type": "payment",
+          "amount": 700,
+          "date": "2026-02-19T01:29:32.559Z",
+          "description": "دفعة نقدية",
+          "items": []
+        },
+        {
+          "id": 1771464532691,
+          "type": "invoice",
+          "amount": 200,
+          "date": "2026-02-19T01:28:52.691Z",
+          "description": "فاتورة جديدة (1 أصناف)",
+          "items": [
+            {
+              "id": 1771464531528,
+              "name": "سندوتش بيض",
+              "price": 200,
+              "quantity": 1,
+              "total": 200
+            }
+          ]
+        },
+        {
+          "id": 1771464511313,
+          "type": "invoice",
+          "amount": 600,
+          "date": "2026-02-19T01:28:31.313Z",
+          "description": "فاتورة جديدة (1 أصناف)",
+          "items": [
+            {
+              "id": 1771464507415,
+              "name": "سندوتش فاصوليا",
+              "price": 300,
+              "quantity": 2,
+              "total": 600
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1771461998863,
+      "name": "محمد محمود",
+      "phone": "0717407807",
+      "transactions": [
+        {
+          "id": 1771462048668,
+          "type": "invoice",
+          "amount": 7000,
+          "date": "2026-02-19T00:47:28.668Z",
+          "description": "فاتورة جديدة (2 أصناف)",
+          "items": [
+            {
+              "id": 1771462039836,
+              "name": "كتاب",
+              "price": 5000,
+              "quantity": 1,
+              "total": 5000
+            },
+            {
+              "id": 1771462046188,
+              "name": "ملزمة",
+              "price": 2000,
+              "quantity": 1,
+              "total": 2000
+            }
+          ]
+        },
+        {
+          "id": 1771464622797,
+          "type": "payment",
+          "amount": 6000,
+          "date": "2026-02-19T01:30:22.797Z",
+          "description": "دفعة نقدية",
+          "items": []
+        }
+      ]
+    }
+  ],
+  "employees": [
+    {
+      "id": 101,
+      "name": "علي الطباخ",
+      "role": "شيف",
+      "balance": 50000,
+      "salary": 100000,
+      "transactions": []
+    },
+    {
+      "id": 1771463286174,
+      "name": "محمد احمد",
+      "role": "مباشر",
+      "phone": "0717407807",
+      "salary": 50000,
+      "transactions": [
+        {
+          "id": 1771463450926,
+          "type": "deduction",
+          "amount": 2000,
+          "date": "2026-02-19T01:10:50.926Z",
+          "description": "غياب"
+        },
+        {
+          "id": 1771463429329,
+          "type": "salary",
+          "amount": 40000,
+          "date": "2026-02-19T01:10:29.329Z",
+          "description": "دفع راتب"
+        },
+        {
+          "id": 1771463412522,
+          "type": "salary",
+          "amount": 10000,
+          "date": "2026-02-19T01:10:12.522Z",
+          "description": "دفع راتب"
+        }
+      ]
+    }
+  ],
+  "suppliers": [
+    {
+      "id": 201,
+      "name": "مخبز السلام",
+      "phone": "777000000",
+      "balance": 2000,
+      "transactions": []
+    },
+    {
+      "id": 1771463729056,
+      "name": "احمد",
+      "phone": "0717407807",
+      "transactions": [
+        {
+          "id": 1771463745877,
+          "type": "purchase",
+          "amount": 10000,
+          "date": "2026-02-19T01:15:45.877Z",
+          "description": "كتب"
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "name": "سندوتش بيض",
+      "price": 200
+    },
+    {
+      "name": "سندوتش فاصوليا",
+      "price": 300
+    },
+    {
+      "name": "شاي عدني",
+      "price": 150
+    },
+    {
+      "name": "عصير ليمون",
+      "price": 400
+    }
+  ]
+}

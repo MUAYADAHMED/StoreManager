@@ -1,0 +1,350 @@
+      <!-- Profile Summary Card -->
+      <div class="bg-white rounded-xl p-6 shadow-sm border mb-6">
+        <div class="flex items-center gap-4">
+          <div
+            class="w-16 h-16 bg-primary rounded-full flex items-center justify-center overflow-hidden"
+          >
+            <img
+              src="https://readdy.ai/api/search-image?query=professional%20arabic%20businessman%20portrait%2C%20friendly%20middle%20eastern%20man%20in%20business%20attire%2C%20clean%20corporate%20headshot%2C%20neutral%20background%2C%20high%20quality%20professional%20photography%2C%20confident%20expression%2C%20well%20groomed%2C%20modern%20business%20portrait&width=64&height=64&seq=profile-pic&orientation=squarish"
+              alt="صورة المستخدم"
+              class="w-full h-full object-cover object-top"
+            />
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-gray-800">أحمد محمد العلي</h3>
+            <p class="text-sm text-gray-500">ahmed.ali@example.com</p>
+            <p class="text-xs text-secondary font-medium">
+              اشتراك مميز • ينتهي في 15 ديسمبر 2025
+            </p>
+          </div>
+          <div class="w-6 h-6 flex items-center justify-center cursor-pointer">
+            <i class="ri-edit-line text-gray-400 text-lg"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Settings Section -->
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold mb-4 text-gray-800">إعدادات الحساب</h2>
+        <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+          <div
+            class="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+            onclick="editProfile()"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="ri-user-line text-blue-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">تحرير الملف الشخصي</p>
+                  <p class="text-sm text-gray-500">
+                    تعديل الاسم والصورة الشخصية
+                  </p>
+                </div>
+              </div>
+              <i class="ri-arrow-left-s-line text-gray-400 text-xl"></i>
+            </div>
+          </div>
+          <div
+            class="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+            onclick="changePassword()"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="ri-lock-line text-red-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">تغيير كلمة المرور</p>
+                  <p class="text-sm text-gray-500">تحديث كلمة المرور الحالية</p>
+                </div>
+              </div>
+              <i class="ri-arrow-left-s-line text-gray-400 text-xl"></i>
+            </div>
+          </div>
+          <div
+            class="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+            onclick="manageEmail()"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="ri-mail-line text-green-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">
+                    إدارة البريد الإلكتروني
+                  </p>
+                  <p class="text-sm text-gray-500">
+                    تغيير عنوان البريد الإلكتروني
+                  </p>
+                </div>
+              </div>
+              <i class="ri-arrow-left-s-line text-gray-400 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Application Settings Section -->
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold mb-4 text-gray-800">
+          إعدادات التطبيق
+        </h2>
+        <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+          <div class="p-4 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="ri-notification-line text-yellow-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">الإشعارات</p>
+                  <p class="text-sm text-gray-500">تلقي تنبيهات التطبيق</p>
+                </div>
+              </div>
+              <div
+                class="toggle-switch active"
+                onclick="toggleNotifications(this)"
+              ></div>
+            </div>
+          </div>
+          <div class="p-4 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="ri-moon-line text-gray-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">الوضع الليلي</p>
+                  <p class="text-sm text-gray-500">تفعيل المظهر الداكن</p>
+                </div>
+              </div>
+              <div class="toggle-switch" onclick="toggleDarkMode(this)"></div>
+            </div>
+          </div>
+          <div class="p-4 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"
+                >
+                  <i
+                    class="ri-money-dollar-circle-line text-green-600 text-lg"
+                  ></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">العملة الافتراضية</p>
+                  <p class="text-sm text-gray-500">ريال سعودي (ر.س)</p>
+                </div>
+              </div>
+              <i
+                class="ri-arrow-left-s-line text-gray-400 text-xl cursor-pointer"
+                onclick="changeCurrency()"
+              ></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backup Management Section -->
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold mb-4 text-gray-800">
+          إدارة النسخ الاحتياطي
+        </h2>
+        <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+          <div class="p-4 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="ri-cloud-line text-green-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">
+                    النسخ الاحتياطي التلقائي
+                  </p>
+                  <p class="text-sm text-gray-500">
+                    نسخ احتياطي يومي في الساعة 2:00 ص
+                  </p>
+                </div>
+              </div>
+              <div
+                class="toggle-switch active"
+                onclick="toggleAutoBackup(this)"
+              ></div>
+            </div>
+          </div>
+          <div
+            class="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+            onclick="createBackup()"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="ri-download-cloud-line text-blue-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">
+                    إنشاء نسخة احتياطية الآن
+                  </p>
+                  <p class="text-sm text-gray-500">حفظ البيانات الحالية</p>
+                </div>
+              </div>
+              <i class="ri-arrow-left-s-line text-gray-400 text-xl"></i>
+            </div>
+          </div>
+          <div
+            class="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+            onclick="restoreBackup()"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="ri-upload-cloud-line text-orange-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">
+                    استعادة من نسخة احتياطية
+                  </p>
+                  <p class="text-sm text-gray-500">استرجاع البيانات المحفوظة</p>
+                </div>
+              </div>
+              <i class="ri-arrow-left-s-line text-gray-400 text-xl"></i>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"
+              >
+                <i class="ri-time-line text-gray-600 text-lg"></i>
+              </div>
+              <div>
+                <p class="font-medium text-gray-800">آخر نسخة احتياطية</p>
+                <p class="text-sm text-gray-500">اليوم في الساعة 2:15 ص</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span class="text-xs text-green-600">مكتملة بنجاح</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- About & Support Section -->
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold mb-4 text-gray-800">
+          معلومات التطبيق والدعم
+        </h2>
+        <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+          <div class="p-4 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="ri-information-line text-gray-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">معلومات الإصدار</p>
+                  <p class="text-sm text-gray-500">
+                    الإصدار 2.1.4 (بناء 2024.11.16)
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+            onclick="contactSupport()"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="ri-customer-service-line text-blue-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">الدعم الفني</p>
+                  <p class="text-sm text-gray-500">تواصل مع فريق المساعدة</p>
+                </div>
+              </div>
+              <i class="ri-arrow-left-s-line text-gray-400 text-xl"></i>
+            </div>
+          </div>
+          <div
+            class="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+            onclick="rateApp()"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="ri-star-line text-yellow-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">تقييم التطبيق</p>
+                  <p class="text-sm text-gray-500">شاركنا رأيك في المتجر</p>
+                </div>
+              </div>
+              <i class="ri-arrow-left-s-line text-gray-400 text-xl"></i>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="ri-question-line text-green-600 text-lg"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">الأسئلة الشائعة</p>
+                  <p class="text-sm text-gray-500">إجابات للأسئلة المتكررة</p>
+                </div>
+              </div>
+              <i
+                class="ri-arrow-left-s-line text-gray-400 text-xl cursor-pointer"
+                onclick="viewFAQ()"
+              ></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-3 mb-8">
+        <button
+          id="save-all-btn"
+          class="w-full bg-primary text-white py-4 rounded-xl !rounded-button font-medium cursor-pointer hover:bg-blue-600 transition-colors"
+          onclick="saveAllSettings()"
+        >
+          حفظ جميع التغييرات
+        </button>
+        <button
+          class="w-full bg-gray-200 text-gray-700 py-4 rounded-xl !rounded-button font-medium cursor-pointer hover:bg-gray-300 transition-colors"
+          onclick="resetSettings()"
+        >
+          إعادة تعيين الإعدادات
+        </button>
+      </div>
+    
